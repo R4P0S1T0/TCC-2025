@@ -1,0 +1,51 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+
+class ContaPagarController extends Controller
+{
+    public function index()
+    {
+        $contas = DB::table('contas_pagar')->get();
+        return view('contas-pagar.index', compact('contas'));
+    }
+
+    public function create()
+    {
+        return view('contas-pagar.create');
+    }
+
+    public function store(Request $request)
+    {
+        // Lógica de criação aqui
+        return redirect()->route('contas-pagar.index')
+                         ->with('success', 'Conta a pagar cadastrada com sucesso!');
+    }
+
+    public function show($id)
+    {
+        return view('contas-pagar.show');
+    }
+
+    public function edit($id)
+    {
+        return view('contas-pagar.edit');
+    }
+
+    public function update(Request $request, $id)
+    {
+        // Lógica de atualização aqui
+        return redirect()->route('contas-pagar.index')
+                         ->with('success', 'Conta a pagar atualizada com sucesso!');
+    }
+
+    public function destroy($id)
+    {
+        // Lógica de exclusão aqui
+        return redirect()->route('contas-pagar.index')
+                         ->with('success', 'Conta a pagar excluída com sucesso!');
+    }
+}
