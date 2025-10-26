@@ -16,8 +16,8 @@
 <body class="bg-gray-50 h-screen flex overflow-hidden">
 
     <!-- Overlay (escurece o fundo no mobile) -->
-    <div id="sidebarOverlay" 
-         class="fixed inset-0 bg-black bg-opacity-50 z-30 hidden lg:hidden transition-opacity duration-200 ease-in-out">
+    <div id="sidebarOverlay"
+        class="fixed inset-0 bg-black bg-opacity-50 z-30 hidden lg:hidden transition-opacity duration-200 ease-in-out">
     </div>
 
     <!-- Sidebar -->
@@ -40,7 +40,7 @@
             <!-- Usuário -->
             <div class="relative">
                 <button id="userMenuButton"
-                    class="flex items-center space-x-2 text-gray-700 hover:text-gray-900">
+                    class="flex items-center space-x-2 text-gray-700 hover:text-gray-900 focus:outline-none">
                     <div
                         class="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
                         <span class="text-white text-sm font-medium">
@@ -52,9 +52,11 @@
                     <i class="fas fa-chevron-down text-xs"></i>
                 </button>
 
-                <!-- Dropdown Menu -->
+                <!-- Dropdown com animação -->
                 <div id="userMenu"
-                    class="hidden absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50">
+                    class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50 
+                    origin-top-right transform scale-95 opacity-0 pointer-events-none transition-all duration-200 ease-out backdrop-blur-sm">
+
                     <form method="POST" action="<?php echo e(route('logout')); ?>">
                         <?php echo csrf_field(); ?>
                         <button type="submit"
@@ -72,39 +74,57 @@
         </main>
     </div>
 
-    <!-- Script: Sidebar + Overlay + User Menu -->
+    <!-- Scripts principais -->
     <script>
-        const sidebar = document.getElementById('sidebar');
-        const overlay = document.getElementById('sidebarOverlay');
-        const toggle = document.getElementById('sidebarToggle');
-        const close = document.getElementById('sidebarClose');
-        const userMenuButton = document.getElementById('userMenuButton');
-        const userMenu = document.getElementById('userMenu');
+        document.addEventListener("DOMContentLoaded", () => {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            const toggle = document.getElementById('sidebarToggle');
+            const close = document.getElementById('sidebarClose');
 
-        function openSidebar() {
-            sidebar.classList.remove('-translate-x-full');
-            overlay.classList.remove('hidden');
-        }
+            const userMenuButton = document.getElementById('userMenuButton');
+            const userMenu = document.getElementById('userMenu');
 
-        function closeSidebar() {
-            sidebar.classList.add('-translate-x-full');
-            overlay.classList.add('hidden');
-        }
-
-        toggle?.addEventListener('click', openSidebar);
-        close?.addEventListener('click', closeSidebar);
-        overlay?.addEventListener('click', closeSidebar);
-
-        // Dropdown de usuário
-        userMenuButton?.addEventListener('click', () => {
-            userMenu.classList.toggle('hidden');
-        });
-
-        // Fecha dropdown se clicar fora
-        document.addEventListener('click', (event) => {
-            if (!userMenuButton.contains(event.target) && !userMenu.contains(event.target)) {
-                userMenu.classList.add('hidden');
+            /* Sidebar (mobile) */
+            function openSidebar() {
+                sidebar.classList.remove('-translate-x-full');
+                overlay.classList.remove('hidden');
             }
+
+            function closeSidebar() {
+                sidebar.classList.add('-translate-x-full');
+                overlay.classList.add('hidden');
+            }
+
+            toggle?.addEventListener('click', openSidebar);
+            close?.addEventListener('click', closeSidebar);
+            overlay?.addEventListener('click', closeSidebar);
+
+            /* Dropdown animado */
+            function openUserMenu() {
+                userMenu.classList.remove('opacity-0', 'scale-95', 'pointer-events-none');
+                userMenu.classList.add('opacity-100', 'scale-100');
+            }
+
+            function closeUserMenu() {
+                userMenu.classList.add('opacity-0', 'scale-95', 'pointer-events-none');
+                userMenu.classList.remove('opacity-100', 'scale-100');
+            }
+
+            userMenuButton?.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (userMenu.classList.contains('opacity-0')) {
+                    openUserMenu();
+                } else {
+                    closeUserMenu();
+                }
+            });
+
+            document.addEventListener('click', (event) => {
+                if (!userMenuButton.contains(event.target) && !userMenu.contains(event.target)) {
+                    closeUserMenu();
+                }
+            });
         });
     </script>
 
