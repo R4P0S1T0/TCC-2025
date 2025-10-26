@@ -4,6 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="<?php echo e(asset('img/logo/logo.svg')); ?>">
+    <link rel="shortcut icon" href="<?php echo e(asset('img/logo/logo.svg')); ?>" type="image/x-icon">
     <title><?php echo $__env->yieldContent('title'); ?> - Sistema de Gestão</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -27,7 +29,7 @@
                     </div>
 
                     <div class="flex items-center space-x-4">
-                        
+
 
                         <div class="relative">
                             <button id="userMenuButton"
