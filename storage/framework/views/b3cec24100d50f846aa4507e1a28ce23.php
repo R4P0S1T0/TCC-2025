@@ -1,13 +1,25 @@
+<!-- Overlay (escurece o fundo no mobile) -->
+<div id="sidebarOverlay" 
+     class="fixed inset-0 bg-black bg-opacity-50 z-30 hidden lg:hidden transition-opacity duration-200 ease-in-out">
+</div>
+
+<!-- Sidebar -->
 <aside id="sidebar"
-    class="bg-gradient-to-b from-[#4E2A8C] to-[#3B1F72] text-white w-64 flex-shrink-0 hidden lg:block lg:static absolute inset-y-0 left-0 z-40 transform lg:translate-x-0 transition duration-200 ease-in-out">
+    class="fixed lg:static inset-y-0 left-0 transform -translate-x-full lg:translate-x-0 
+           bg-gradient-to-b from-[#4E2A8C] to-[#3B1F72] text-white w-64 flex-shrink-0 
+           z-40 transition-transform duration-300 ease-in-out shadow-lg lg:shadow-none">
+
     <div class="flex flex-col h-full">
-        <!-- Logo -->
-        <div class="flex items-center justify-center bg-[#3B1F72] px-6 py-4 border-b border-[#5E3BAE]">
+        <!-- Header com botão de fechar (aparece só no mobile) -->
+        <div class="flex items-center justify-between bg-[#3B1F72] px-6 py-4 border-b border-[#5E3BAE]">
             <img src="<?php echo e(asset('img/logo/logo.svg')); ?>" alt="Logo" class="w-full max-h-16 object-contain">
+            <button id="sidebarClose" class="text-white text-xl lg:hidden ml-3 hover:text-gray-200">
+                <i class="fas fa-times"></i>
+            </button>
         </div>
 
-        <!-- Navigation -->
-        <nav class="flex-1 px-4 py-6 space-y-2">
+        <!-- Navegação -->
+        <nav class="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
             <a href="<?php echo e(route('dashboard')); ?>"
                 class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-[#6A38C1] transition <?php echo e(request()->is('/') ? 'bg-[#6A38C1]' : ''); ?>">
                 <i class="fas fa-home w-5"></i>

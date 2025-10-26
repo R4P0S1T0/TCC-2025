@@ -7,83 +7,101 @@
     <link rel="icon" type="image/svg+xml" href="<?php echo e(asset('img/logo/logo.svg')); ?>">
     <link rel="shortcut icon" href="<?php echo e(asset('img/logo/logo.svg')); ?>" type="image/x-icon">
     <title><?php echo $__env->yieldContent('title'); ?> - Sistema de Gestão</title>
+
+    <!-- Tailwind & Font Awesome -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 
-<body class="bg-gray-50">
-    <div class="flex h-screen">
-        <!-- Sidebar -->
-        <?php echo $__env->make('layouts.sidebar', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
+<body class="bg-gray-50 h-screen flex overflow-hidden">
 
-        <!-- Main Content -->
-        <div class="flex-1 flex flex-col overflow-hidden">
-            <!-- Header -->
-            <header class="bg-white shadow-sm border-b border-gray-200">
-                <div class="flex items-center justify-between px-6 py-4">
-                    <div class="flex items-center">
-                        <button id="sidebarToggle" class="lg:hidden text-gray-500 hover:text-gray-700">
-                            <i class="fas fa-bars text-xl"></i>
-                        </button>
-                        <h1 class="text-xl font-semibold text-gray-800 ml-4"><?php echo $__env->yieldContent('title'); ?></h1>
-                    </div>
-
-                    <div class="flex items-center space-x-4">
-
-
-                        <div class="relative">
-                            <button id="userMenuButton"
-                                class="flex items-center space-x-2 text-gray-700 hover:text-gray-900">
-                                <div
-                                    class="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
-                                    <span
-                                        class="text-white text-sm font-medium"><?php echo e(substr(auth()->user()->nome, 0, 1)); ?></span>
-                                </div>
-                                <span class="hidden sm:block"><?php echo e(auth()->user()->nome); ?></span>
-                                <i class="fas fa-chevron-down text-xs"></i>
-                            </button>
-
-                            <!-- Dropdown Menu -->
-                            <div id="userMenu"
-                                class="hidden absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50">
-
-                                <form method="POST" action="<?php echo e(route('logout')); ?>">
-                                    <?php echo csrf_field(); ?>
-                                    <button type="submit"
-                                        class=" w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100 flex items-center">
-                                        <i class="fas fa-sign-out-alt mr-2"></i>
-                                        Sair
-                                    </button>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </header>
-
-            <!-- Page Content -->
-            <main class="flex-1 overflow-y-auto p-6">
-                <?php echo $__env->yieldContent('content'); ?>
-            </main>
-        </div>
+    <!-- Overlay (escurece o fundo no mobile) -->
+    <div id="sidebarOverlay" 
+         class="fixed inset-0 bg-black bg-opacity-50 z-30 hidden lg:hidden transition-opacity duration-200 ease-in-out">
     </div>
 
+    <!-- Sidebar -->
+    <?php echo $__env->make('layouts.sidebar', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
+
+    <!-- Conteúdo Principal -->
+    <div class="flex-1 flex flex-col overflow-hidden">
+
+        <!-- Header -->
+        <header class="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between shadow-sm">
+            <div class="flex items-center space-x-3">
+                <!-- Botão abrir sidebar (mobile) -->
+                <button id="sidebarToggle" class="text-gray-700 hover:text-gray-900 lg:hidden">
+                    <i class="fas fa-bars text-2xl"></i>
+                </button>
+
+                <h1 class="font-semibold text-lg text-gray-800"><?php echo $__env->yieldContent('title'); ?></h1>
+            </div>
+
+            <!-- Usuário -->
+            <div class="relative">
+                <button id="userMenuButton"
+                    class="flex items-center space-x-2 text-gray-700 hover:text-gray-900">
+                    <div
+                        class="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+                        <span class="text-white text-sm font-medium">
+                            <?php echo e(substr(auth()->user()->nome, 0, 1)); ?>
+
+                        </span>
+                    </div>
+                    <span class="hidden sm:block font-medium"><?php echo e(auth()->user()->nome); ?></span>
+                    <i class="fas fa-chevron-down text-xs"></i>
+                </button>
+
+                <!-- Dropdown Menu -->
+                <div id="userMenu"
+                    class="hidden absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50">
+                    <form method="POST" action="<?php echo e(route('logout')); ?>">
+                        <?php echo csrf_field(); ?>
+                        <button type="submit"
+                            class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100 flex items-center">
+                            <i class="fas fa-sign-out-alt mr-2"></i> Sair
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </header>
+
+        <!-- Página -->
+        <main class="flex-1 overflow-y-auto p-6">
+            <?php echo $__env->yieldContent('content'); ?>
+        </main>
+    </div>
+
+    <!-- Script: Sidebar + Overlay + User Menu -->
     <script>
-        // Toggle Sidebar on Mobile
-        document.getElementById('sidebarToggle').addEventListener('click', function () {
-            document.getElementById('sidebar').classList.toggle('hidden');
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('sidebarOverlay');
+        const toggle = document.getElementById('sidebarToggle');
+        const close = document.getElementById('sidebarClose');
+        const userMenuButton = document.getElementById('userMenuButton');
+        const userMenu = document.getElementById('userMenu');
+
+        function openSidebar() {
+            sidebar.classList.remove('-translate-x-full');
+            overlay.classList.remove('hidden');
+        }
+
+        function closeSidebar() {
+            sidebar.classList.add('-translate-x-full');
+            overlay.classList.add('hidden');
+        }
+
+        toggle?.addEventListener('click', openSidebar);
+        close?.addEventListener('click', closeSidebar);
+        overlay?.addEventListener('click', closeSidebar);
+
+        // Dropdown de usuário
+        userMenuButton?.addEventListener('click', () => {
+            userMenu.classList.toggle('hidden');
         });
 
-        // Toggle User Menu
-        document.getElementById('userMenuButton').addEventListener('click', function () {
-            document.getElementById('userMenu').classList.toggle('hidden');
-        });
-
-        // Close menus when clicking outside
-        document.addEventListener('click', function (event) {
-            const userMenu = document.getElementById('userMenu');
-            const userMenuButton = document.getElementById('userMenuButton');
-
+        // Fecha dropdown se clicar fora
+        document.addEventListener('click', (event) => {
             if (!userMenuButton.contains(event.target) && !userMenu.contains(event.target)) {
                 userMenu.classList.add('hidden');
             }
@@ -92,9 +110,10 @@
 
     <?php echo $__env->yieldPushContent('scripts'); ?>
 
-    <!-- Máscaras jQuery -->
+    <!-- jQuery e Máscaras -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
+
     <script>
         $(function () {
             // Máscaras de input
@@ -102,7 +121,7 @@
             $('#nota_fiscal').mask('0000/000000');
             $('#data_vencimento').mask('00/00/0000');
 
-            // Converte formato BR antes de enviar o form
+            // Converte formato BR antes de enviar
             $('form').on('submit', function () {
                 const valorInput = $('#valor');
                 const valor = valorInput.val().replace(/\./g, '').replace(',', '.');
@@ -118,10 +137,7 @@
         });
     </script>
 
+    <script src="<?php echo e(asset('js/masks.js')); ?>"></script>
 </body>
-
 </html>
-
-<!-- Scripts de Máscaras e CEP -->
-<script src="<?php echo e(asset('js/masks.js')); ?>"></script>
-</body><?php /**PATH /opt/lampp/htdocs/tcc-real-test/lart-digital/resources/views/layouts/app.blade.php ENDPATH**/ ?>
+<?php /**PATH /opt/lampp/htdocs/tcc-real-test/lart-digital/resources/views/layouts/app.blade.php ENDPATH**/ ?>
