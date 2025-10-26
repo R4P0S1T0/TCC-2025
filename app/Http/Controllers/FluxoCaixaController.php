@@ -111,44 +111,66 @@ class FluxoCaixaController extends Controller
     $inicioSemana = \Carbon\Carbon::now()->startOfWeek();
     $fimSemana = \Carbon\Carbon::now()->endOfWeek();
 
-    // Total de entradas (contas recebidas)
-    $totalEntradas = \DB::table('contas_receber')
+    // Buscar entradas (contas a receber)
+    $entradas = \DB::table('contas_receber')
+        ->select(
+            \DB::raw("'Entrada' as tipo"),
+            'descricao',
+            'valor',
+            'data_vencimento as data',
+            'status'
+        )
         ->whereBetween('data_vencimento', [$inicioSemana, $fimSemana])
-        ->where('status', 'recebido')
-        ->sum('valor');
+        ->where('status', 'recebido');
 
-    // Total de saídas (contas pagas)
-    $totalSaidas = \DB::table('contas_pagar')
+    // Buscar saídas (contas a pagar)
+    $saidas = \DB::table('contas_pagar')
+        ->select(
+            \DB::raw("'Saída' as tipo"),
+            \DB::raw("CONCAT('NF: ', IFNULL(nota_fiscal, 'Sem nota')) as descricao"),
+            'valor',
+            'data_vencimento as data',
+            'status'
+        )
         ->whereBetween('data_vencimento', [$inicioSemana, $fimSemana])
-        ->where('status', 'pago')
-        ->sum('valor');
+        ->where('status', 'pago');
 
-    // Lucro (diferença entre entradas e saídas)
-    $lucro = $totalEntradas - $totalSaidas;
+    // Unir e ordenar
+    $movimentos = $entradas->unionAll($saidas)
+        ->orderBy('data', 'asc')
+        ->get();
 
-    // Nome do arquivo
-    $filename = 'resumo_fluxo_caixa_' . now()->format('d_m_Y') . '.csv';
-    $handle = fopen('php://memory', 'r+');
+    // Calcular saldo acumulado
+    $saldo = 0;
+    $dados = $movimentos->map(function ($m) use (&$saldo) {
+        if ($m->tipo === 'Entrada') {
+            $saldo += $m->valor;
+        } else {
+            $saldo -= $m->valor;
+        }
 
-    // Cabeçalhos
-    fputcsv($handle, ['Data', 'Entradas (R$)', 'Saídas (R$)', 'Lucro (R$)'], ',');
+        return [
+            'Data' => \Carbon\Carbon::parse($m->data)->format('d/m/Y'),
+            'Tipo' => $m->tipo,
+            'Descrição' => $m->descricao,
+            'Valor (R$)' => number_format($m->valor, 2, ',', '.'),
+            'Status' => ucfirst($m->status),
+            'Saldo Acumulado (R$)' => number_format($saldo, 2, ',', '.'),
+        ];
+    });
 
-    // Linha de dados
-    fputcsv($handle, [
-        now()->format('d/m/Y'),
-        number_format($totalEntradas, 2, '.', ''),
-        number_format($totalSaidas, 2, '.', ''),
-        number_format($lucro, 2, '.', '')
-    ], ',');
+    // Gerar CSV
+    $csv = \League\Csv\Writer::createFromString('');
+    $csv->insertOne(array_keys($dados->first() ?? []));
+    $csv->insertAll($dados->toArray());
 
-    rewind($handle);
-    $contents = stream_get_contents($handle);
-    fclose($handle);
+    $nomeArquivo = 'extrato_fluxo_caixa_' . now()->format('d_m_Y') . '.csv';
 
-    return response($contents)
-        ->header('Content-Type', 'text/csv')
-        ->header('Content-Disposition', 'attachment; filename="' . $filename . '"');
+    return response((string) $csv)
+        ->header('Content-Type', 'text/csv; charset=UTF-8')
+        ->header('Content-Disposition', "attachment; filename=\"$nomeArquivo\"");
 }
+
 
 
 }
