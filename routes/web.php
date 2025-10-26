@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth'])->group(function () {
     Route::resource('compras', CompraController::class);
-    
+
     // Rotas extras para ações rápidas
     Route::post('/compras/{id}/finalizar', [CompraController::class, 'finalizar'])->name('compras.finalizar');
     Route::post('/compras/{id}/cancelar', [CompraController::class, 'cancelar'])->name('compras.cancelar');
@@ -39,20 +39,25 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('clientes', ClienteController::class);
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
+    Route::get('/fluxo-caixa', [FluxoCaixaController::class, 'index'])->name('fluxo-caixa.index');
+    Route::get('/fluxo-caixa/export/pdf', [FluxoCaixaController::class, 'exportPdf'])->name('fluxo-caixa.export.pdf');
+    Route::get('/fluxo-caixa/export/csv', [FluxoCaixaController::class, 'exportCsv'])->name('fluxo-caixa.export.excel');
+
+
     // Endpoint AJAX para puxar dados da compra no Contas a Pagar
     Route::get('/compras/{id}/dados', [CompraController::class, 'dadosAjax'])
         ->name('compras.dados')
         ->middleware('auth');
-    
+
     // Módulos do sistema
     Route::resource('fornecedores', FornecedorController::class);
     Route::resource('compras', CompraController::class);
     Route::resource('contas-pagar', ContasPagarController::class);
     Route::patch('/contas-pagar/{id}/toggle-status', [ContasPagarController::class, 'toggleStatus'])
-    ->name('contas-pagar.toggle-status');
+        ->name('contas-pagar.toggle-status');
     Route::resource('contas-receber', ContaReceberController::class);
     Route::resource('usuarios', UsuarioController::class);
-    
+
     // Calendário
     Route::get('calendario', [CalendarioController::class, 'index'])->name('calendario.index');
     Route::get('calendario/create', [CalendarioController::class, 'create'])->name('calendario.create');
