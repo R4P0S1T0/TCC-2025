@@ -108,62 +108,67 @@ class FluxoCaixaController extends Controller
 
     // -------------------- EXPORTAR CSV (Excel compatível) --------------------
     public function exportExcel()
-    {
-        $inicioSemana = Carbon::now()->startOfWeek();
-        $fimSemana = Carbon::now()->endOfWeek();
+{
+    $inicioSemana = \Carbon\Carbon::now()->startOfWeek();
+    $fimSemana = \Carbon\Carbon::now()->endOfWeek();
 
-        // Entradas
-        $entradas = DB::table('contas_receber')
-            ->select(DB::raw("'Entrada' as tipo"), 'descricao', 'valor', 'data_vencimento as data', 'status')
-            ->whereBetween('data_vencimento', [$inicioSemana, $fimSemana])
-            ->where('status', 'recebido');
+    // Entradas
+    $entradas = \DB::table('contas_receber')
+        ->select(\DB::raw("'Entrada' as tipo"), 'descricao', 'valor', 'data_vencimento as data', 'status')
+        ->whereBetween('data_vencimento', [$inicioSemana, $fimSemana])
+        ->where('status', 'recebido');
 
-        // Saídas
-        $saidas = DB::table('contas_pagar')
-            ->select(
-                DB::raw("'Saída' as tipo"),
-                DB::raw("CONCAT('NF: ', IFNULL(nota_fiscal, 'Sem nota')) as descricao"),
-                'valor',
-                'data_vencimento as data',
-                'status'
-            )
-            ->whereBetween('data_vencimento', [$inicioSemana, $fimSemana])
-            ->where('status', 'pago');
+    // Saídas
+    $saidas = \DB::table('contas_pagar')
+        ->select(
+            \DB::raw("'Saída' as tipo"),
+            \DB::raw("CONCAT('NF: ', IFNULL(nota_fiscal, 'Sem nota')) as descricao"),
+            'valor',
+            'data_vencimento as data',
+            'status'
+        )
+        ->whereBetween('data_vencimento', [$inicioSemana, $fimSemana])
+        ->where('status', 'pago');
 
-        $movimentos = $entradas->unionAll($saidas)->orderBy('data', 'asc')->get();
+    // Unir e ordenar
+    $movimentos = $entradas->unionAll($saidas)->orderBy('data', 'asc')->get();
 
-        // Saldo acumulado
-        $saldo = 0;
-        $dados = $movimentos->map(function ($m) use (&$saldo) {
-            $m->tipo === 'Entrada' ? $saldo += $m->valor : $saldo -= $m->valor;
+    // Calcular saldo acumulado
+    $saldo = 0;
+    $dados = $movimentos->map(function ($m) use (&$saldo) {
+        if ($m->tipo === 'Entrada') $saldo += $m->valor;
+        else $saldo -= $m->valor;
 
-            return [
-                'Data' => Carbon::parse($m->data)->format('d/m/Y'),
-                'Tipo' => $m->tipo,
-                'Descrição' => $m->descricao,
-                'Valor (R$)' => number_format($m->valor, 2, ',', '.'),
-                'Status' => ucfirst($m->status),
-                'Saldo Acumulado (R$)' => number_format($saldo, 2, ',', '.'),
-            ];
-        });
+        return [
+            'Data' => \Carbon\Carbon::parse($m->data)->format('d/m/Y'),
+            'Tipo' => $m->tipo,
+            'Descrição' => $m->descricao,
+            'Valor (R$)' => number_format($m->valor, 2, ',', ''),
+            'Status' => ucfirst($m->status),
+            'Saldo Acumulado (R$)' => number_format($saldo, 2, ',', ''),
+        ];
+    });
 
-        // Gera CSV compatível com Excel
-        $handle = fopen('php://temp', 'r+');
-        fprintf($handle, chr(0xEF) . chr(0xBB) . chr(0xBF)); // BOM UTF-8
-        fputcsv($handle, array_keys($dados->first() ?? []), ';');
+    // Monta CSV compatível com Excel (vírgula como separador)
+    $handle = fopen('php://temp', 'r+');
+    fprintf($handle, chr(0xEF) . chr(0xBB) . chr(0xBF)); // BOM UTF-8
 
-        foreach ($dados as $linha) {
-            fputcsv($handle, $linha, ';');
-        }
+    // Cabeçalhos
+    fputcsv($handle, array_keys($dados->first() ?? []), ',');
 
-        rewind($handle);
-        $csvContent = stream_get_contents($handle);
-        fclose($handle);
-
-        $fileName = 'fluxo_caixa_' . now()->format('d_m_Y_His') . '.csv';
-
-        return response($csvContent)
-            ->header('Content-Type', 'text/csv; charset=UTF-8')
-            ->header('Content-Disposition', "attachment; filename=\"$fileName\"");
+    // Dados
+    foreach ($dados as $linha) {
+        fputcsv($handle, $linha, ',');
     }
+
+    rewind($handle);
+    $csvContent = stream_get_contents($handle);
+    fclose($handle);
+
+    $fileName = 'fluxo_caixa_' . now()->format('d_m_Y_His') . '.csv';
+
+    return response($csvContent)
+        ->header('Content-Type', 'text/csv; charset=UTF-8')
+        ->header('Content-Disposition', "attachment; filename=\"$fileName\"");
+}
 }
