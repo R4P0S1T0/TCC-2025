@@ -33,9 +33,40 @@ Route::post('/logout', [AuthController::class, 'logout'])
 |--------------------------------------------------------------------------
 */
 Route::middleware(['auth'])->group(function () {
+
     // Página inicial / dashboard
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+    /*
+    |--------------------------------------------------------------------------
+    | Endpoints AJAX e rotas personalizadas
+    |--------------------------------------------------------------------------
+    */
+    // ✅ Endpoint usado pela tela "Nova Conta a Pagar"
+    Route::get('/compras/dados/{id}', [CompraController::class, 'dadosAjax'])
+        ->name('compras.dados');
+
+    // Compras - ações rápidas
+    Route::post('/compras/{id}/finalizar', [CompraController::class, 'finalizar'])
+        ->name('compras.finalizar');
+    Route::post('/compras/{id}/cancelar', [CompraController::class, 'cancelar'])
+        ->name('compras.cancelar');
+
+    // Contas a pagar - alternar status
+    Route::patch('/contas-pagar/{id}/toggle-status', [ContasPagarController::class, 'toggleStatus'])
+        ->name('contas-pagar.toggle-status');
+
+    // Fluxo de Caixa
+    Route::prefix('fluxo-caixa')->name('fluxo-caixa.')->group(function () {
+        Route::get('/', [FluxoCaixaController::class, 'index'])->name('index');
+        Route::get('/export/pdf', [FluxoCaixaController::class, 'exportPdf'])->name('export.pdf');
+        Route::get('/export/excel', [FluxoCaixaController::class, 'exportCsv'])->name('export.excel');
+    });
+
+    // Calendário (caso precise endpoints separados para AJAX)
+    Route::get('/calendario/eventos', [CalendarioController::class, 'getEventos'])
+        ->name('calendario.eventos');
 
     /*
     |--------------------------------------------------------------------------
@@ -51,35 +82,6 @@ Route::middleware(['auth'])->group(function () {
         'usuarios'       => UsuarioController::class,
         'calendario'     => CalendarioController::class,
     ]);
-
-    /*
-    |--------------------------------------------------------------------------
-    | Rotas adicionais e ações específicas
-    |--------------------------------------------------------------------------
-    */
-
-    // Compras - ações rápidas
-    Route::post('/compras/{id}/finalizar', [CompraController::class, 'finalizar'])
-        ->name('compras.finalizar');
-    Route::post('/compras/{id}/cancelar', [CompraController::class, 'cancelar'])
-        ->name('compras.cancelar');
-    Route::get('/compras/{id}/dados', [CompraController::class, 'dadosAjax'])
-        ->name('compras.dados');
-
-    // Contas a pagar - alternar status
-    Route::patch('/contas-pagar/{id}/toggle-status', [ContasPagarController::class, 'toggleStatus'])
-        ->name('contas-pagar.toggle-status');
-
-    // Fluxo de Caixa
-    Route::prefix('fluxo-caixa')->name('fluxo-caixa.')->group(function () {
-        Route::get('/', [FluxoCaixaController::class, 'index'])->name('index');
-        Route::get('/export/pdf', [FluxoCaixaController::class, 'exportPdf'])->name('export.pdf');
-        Route::get('/export/excel', [FluxoCaixaController::class, 'exportExcel'])->name('export.excel');
-    });
-
-    // Calendário (caso precise endpoints separados para AJAX)
-    Route::get('/calendario/eventos', [CalendarioController::class, 'getEventos'])
-        ->name('calendario.eventos');
 });
 
 /*
