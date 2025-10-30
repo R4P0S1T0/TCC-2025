@@ -9,14 +9,36 @@ use Carbon\Carbon;
 class ContaReceberController extends Controller
 {
     /** 🧾 Listagem */
-    public function index()
+    public function index(Request $request)
     {
-        $contas = DB::table('contas_receber')
-            ->orderByDesc('id_creceber')
-            ->get();
+        // Inicia a query base
+        $query = \App\Models\ContaReceber::query();
+
+        // 🔹 Filtros dinâmicos
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        if ($request->filled('busca')) {
+            $busca = $request->busca;
+            $query->where(function ($q) use ($busca) {
+                $q->where('descricao', 'like', "%{$busca}%")
+                    ->orWhere('cliente_nome', 'like', "%{$busca}%")
+                    ->orWhere('id_creceber', 'like', "%{$busca}%");
+            });
+        }
+
+        if ($request->filled('data_inicio') && $request->filled('data_fim')) {
+            $query->whereBetween('data_vencimento', [$request->data_inicio, $request->data_fim]);
+        }
+
+        // 🔹 Ordena da mais recente para a mais antiga
+        $contas = $query->orderByDesc('id_creceber')->get();
 
         return view('contas-receber.index', compact('contas'));
     }
+
+
 
     /** 🧩 Formulário de criação */
     public function create()
@@ -61,17 +83,17 @@ class ContaReceberController extends Controller
 
         // 🔹 Inserção no banco
         DB::table('contas_receber')->insert([
-            'descricao'        => $request->descricao,
-            'cliente_nome'     => $request->cliente_nome,
-            'valor'            => $valor,
-            'data_vencimento'  => $dataVencimento,
-            'status'           => 'pendente',
-            'observacoes'      => $request->observacoes,
-            'id_pedido'        => null,
+            'descricao' => $request->descricao,
+            'cliente_nome' => $request->cliente_nome,
+            'valor' => $valor,
+            'data_vencimento' => $dataVencimento,
+            'status' => 'pendente',
+            'observacoes' => $request->observacoes,
+            'id_pedido' => null,
         ]);
 
         return redirect()->route('contas-receber.index')
-                         ->with('success', 'Conta a receber cadastrada com sucesso!');
+            ->with('success', 'Conta a receber cadastrada com sucesso!');
     }
 
     /** 👁️ Visualiza uma conta */
@@ -81,7 +103,7 @@ class ContaReceberController extends Controller
 
         if (!$conta) {
             return redirect()->route('contas-receber.index')
-                             ->with('error', 'Conta não encontrada.');
+                ->with('error', 'Conta não encontrada.');
         }
 
         return view('contas-receber.show', compact('conta'));
@@ -94,7 +116,7 @@ class ContaReceberController extends Controller
 
         if (!$conta) {
             return redirect()->route('contas-receber.index')
-                             ->with('error', 'Conta não encontrada.');
+                ->with('error', 'Conta não encontrada.');
         }
 
         // 🔹 Também traz os clientes para o select
@@ -138,16 +160,16 @@ class ContaReceberController extends Controller
         DB::table('contas_receber')
             ->where('id_creceber', $id)
             ->update([
-                'descricao'       => $request->descricao,
-                'cliente_nome'    => $request->cliente_nome,
-                'valor'           => $valor,
+                'descricao' => $request->descricao,
+                'cliente_nome' => $request->cliente_nome,
+                'valor' => $valor,
                 'data_vencimento' => $dataVencimento,
-                'status'          => $request->status ?? 'pendente',
-                'observacoes'     => $request->observacoes,
+                'status' => $request->status ?? 'pendente',
+                'observacoes' => $request->observacoes,
             ]);
 
         return redirect()->route('contas-receber.index')
-                         ->with('success', 'Conta atualizada com sucesso!');
+            ->with('success', 'Conta atualizada com sucesso!');
     }
 
     /** ❌ Exclui uma conta */
@@ -156,6 +178,6 @@ class ContaReceberController extends Controller
         DB::table('contas_receber')->where('id_creceber', $id)->delete();
 
         return redirect()->route('contas-receber.index')
-                         ->with('success', 'Conta excluída com sucesso!');
+            ->with('success', 'Conta excluída com sucesso!');
     }
 }
