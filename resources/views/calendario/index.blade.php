@@ -4,35 +4,71 @@
 
 @section('content')
 <div class="space-y-6">
-    <div class="flex justify-between items-center">
+    <!-- Cabeçalho -->
+    <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
         <h1 class="text-2xl font-bold text-gray-800">Calendário de Agendamentos</h1>
         <a href="{{ route('calendario.create') }}" 
-           class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
+           class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition flex items-center justify-center w-full sm:w-auto">
             <i class="fas fa-plus mr-2"></i>Novo Agendamento
         </a>
     </div>
 
-    <div id="calendar" class="bg-white rounded-lg shadow border border-gray-200 p-4"></div>
+    <!-- Calendário -->
+    <div id="calendar-container" class="bg-white rounded-lg shadow border border-gray-200 p-4 overflow-hidden">
+        <div id="calendar"></div>
+    </div>
 </div>
 
 <!-- FullCalendar -->
 <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
 
+<style>
+/* 🔹 Corrige proporções no mobile */
+.fc .fc-toolbar-title {
+    font-size: 1rem !important;
+    text-align: center;
+}
+
+.fc .fc-toolbar.fc-header-toolbar {
+    flex-wrap: wrap !important;
+    gap: 0.5rem;
+    justify-content: center !important;
+}
+
+.fc .fc-button {
+    padding: 0.35rem 0.6rem !important;
+    font-size: 0.8rem !important;
+}
+
+.fc .fc-daygrid-day-number {
+    font-size: 0.75rem !important;
+}
+
+@media (max-width: 640px) {
+    #calendar-container {
+        padding: 0.5rem !important;
+    }
+    .fc .fc-toolbar-title {
+        font-size: 0.9rem !important;
+    }
+}
+</style>
+
 <!-- Context Menu -->
-<div id="context-menu" class="hidden absolute bg-white shadow-lg rounded-lg border border-gray-200 z-50 w-40">
+<div id="context-menu" class="hidden fixed bg-white shadow-lg rounded-lg border border-gray-200 z-50 w-44">
     <ul class="text-sm text-gray-700">
-        <li class="px-4 py-2 hover:bg-gray-100 cursor-pointer" id="verDetalhes">🔍 Ver detalhes</li>
-        <li class="px-4 py-2 hover:bg-gray-100 cursor-pointer" id="editar">✏️ Editar</li>
-        <li class="px-4 py-2 hover:bg-gray-100 cursor-pointer text-red-600" id="excluir">🗑️ Excluir</li>
+        <li class="px-4 py-2 hover:bg-gray-100 cursor-pointer flex items-center gap-2" id="verDetalhes">🔍 Ver detalhes</li>
+        <li class="px-4 py-2 hover:bg-gray-100 cursor-pointer flex items-center gap-2" id="editar">✏️ Editar</li>
+        <li class="px-4 py-2 hover:bg-gray-100 cursor-pointer text-red-600 flex items-center gap-2" id="excluir">🗑️ Excluir</li>
     </ul>
 </div>
 
 <!-- Modal -->
-<div id="modal-agendamento" class=" fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center z-50">
+<div id="modal-agendamento" class="fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center z-50 hidden px-4">
     <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6">
         <h2 class="text-xl font-semibold text-gray-800 mb-4" id="modal-titulo"></h2>
-        <div class="space-y-2 text-gray-700">
+        <div class="space-y-2 text-gray-700 text-sm sm:text-base">
             <p><strong>Cliente:</strong> <span id="modal-cliente"></span></p>
             <p><strong>Data e Hora:</strong> <span id="modal-data"></span></p>
             <p><strong>Status:</strong> <span id="modal-status"></span></p>
@@ -57,13 +93,14 @@ document.addEventListener('DOMContentLoaded', function () {
     contextMenu.classList.add('hidden');
 
     const calendar = new FullCalendar.Calendar(calendarEl, {
-        initialView: 'dayGridMonth',
+        initialView: window.innerWidth < 640 ? 'listWeek' : 'dayGridMonth',
         locale: 'pt-br',
         height: 'auto',
+        aspectRatio: 1.5,
         headerToolbar: {
             left: 'prev,next today',
             center: 'title',
-            right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'
+            right: window.innerWidth < 640 ? '' : 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'
         },
         buttonText: {
             today: 'Hoje',
@@ -74,7 +111,7 @@ document.addEventListener('DOMContentLoaded', function () {
         },
         events: @json($agendamentos),
 
-        eventContent: function(arg) {
+        eventContent(arg) {
             const title = arg.event.title.length > 22 
                 ? arg.event.title.slice(0, 22) + '...' 
                 : arg.event.title;
@@ -93,25 +130,39 @@ document.addEventListener('DOMContentLoaded', function () {
             };
         },
 
-        eventDidMount: function(info) {
+        eventDidMount(info) {
             info.el.addEventListener('contextmenu', function (e) {
                 e.preventDefault();
                 selectedEvent = info.event;
+
+                const x = e.clientX;
+                const y = e.clientY;
+                const menuWidth = contextMenu.offsetWidth;
+                const menuHeight = contextMenu.offsetHeight;
+                const screenWidth = window.innerWidth;
+                const screenHeight = window.innerHeight;
+
+                let left = x;
+                let top = y;
+
+                if (x + menuWidth > screenWidth) left = screenWidth - menuWidth - 10;
+                if (y + menuHeight > screenHeight) top = screenHeight - menuHeight - 10;
+
+                contextMenu.style.left = left + 'px';
+                contextMenu.style.top = top + 'px';
                 contextMenu.classList.remove('hidden');
-                contextMenu.style.left = e.pageX + 'px';
-                contextMenu.style.top = e.pageY + 'px';
             });
-        }
+        },
     });
 
     calendar.render();
 
-    // Fecha menu ao clicar fora
+    // Fechar context menu
     window.addEventListener('click', (e) => {
         if (!contextMenu.contains(e.target)) contextMenu.classList.add('hidden');
     });
 
-    // Ver detalhes do evento
+    // Detalhes
     document.getElementById('verDetalhes').addEventListener('click', () => {
         contextMenu.classList.add('hidden');
         if (!selectedEvent) return;
@@ -158,6 +209,12 @@ document.addEventListener('DOMContentLoaded', function () {
     // Fechar modal
     document.getElementById('modal-fechar').addEventListener('click', () => modal.classList.add('hidden'));
     window.addEventListener('click', (e) => { if (e.target === modal) modal.classList.add('hidden'); });
+
+    // Responsividade dinâmica
+    window.addEventListener('resize', () => {
+        if (window.innerWidth < 640) calendar.changeView('listWeek');
+        else calendar.changeView('dayGridMonth');
+    });
 });
 </script>
 @endsection
