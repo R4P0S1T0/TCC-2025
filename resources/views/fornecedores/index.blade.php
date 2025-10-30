@@ -4,73 +4,102 @@
 
 @section('content')
 <div class="space-y-6">
-    <div class="flex justify-between items-center">
+    <!-- Cabeçalho -->
+    <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
         <h1 class="text-2xl font-bold text-gray-800">Fornecedores</h1>
         <a href="{{ route('fornecedores.create') }}" 
-           class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
+           class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition flex items-center justify-center w-full sm:w-auto">
             <i class="fas fa-plus mr-2"></i>Novo Fornecedor
         </a>
     </div>
 
+    <!-- Filtros -->
+    <form method="GET" class="bg-white border border-gray-200 rounded-lg p-4 grid grid-cols-1 md:grid-cols-4 gap-4 shadow-sm">
+        <div>
+            <label class="text-sm block mb-1 text-gray-700">Buscar</label>
+            <input type="text" name="busca" value="{{ request('busca') }}"
+                   placeholder="Nome, CNPJ, e-mail..."
+                   class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+        </div>
+
+        <div>
+            <label class="text-sm block mb-1 text-gray-700">Estado (UF)</label>
+            <input type="text" name="estado" maxlength="2" value="{{ request('estado') }}"
+                   placeholder="SP"
+                   class="w-full border border-gray-300 rounded-lg px-3 py-2 uppercase focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+        </div>
+
+        <div>
+            <label class="text-sm block mb-1 text-gray-700">Cidade</label>
+            <input type="text" name="cidade" value="{{ request('cidade') }}"
+                   placeholder="Ex: Americana"
+                   class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+        </div>
+
+        <div class="flex items-end">
+            <button class="w-full md:w-auto px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-900 transition flex items-center justify-center">
+                <i class="fas fa-filter mr-2"></i>Filtrar
+            </button>
+        </div>
+    </form>
+
+    <!-- Mensagem de sucesso -->
     @if(session('success'))
-    <div class="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg">
-        {{ session('success') }}
-    </div>
+        <div class="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg">
+            {{ session('success') }}
+        </div>
     @endif
 
+    <!-- Tabela -->
     <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
         <div class="overflow-x-auto">
-            <table class="w-full">
+            <table class="w-full text-sm">
                 <thead class="bg-gray-50">
                     <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nome</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">CNPJ</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Telefone</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">E-mail</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
+                        <th class="px-6 py-3 text-left font-medium text-gray-500 uppercase">Nome</th>
+                        <th class="px-6 py-3 text-left font-medium text-gray-500 uppercase">CNPJ</th>
+                        <th class="px-6 py-3 text-left font-medium text-gray-500 uppercase">Telefone</th>
+                        <th class="px-6 py-3 text-left font-medium text-gray-500 uppercase">E-mail</th>
+                        <th class="px-6 py-3 text-left font-medium text-gray-500 uppercase">Cidade</th>
+                        <th class="px-6 py-3 text-left font-medium text-gray-500 uppercase">Ações</th>
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
                     @forelse($fornecedores as $fornecedor)
-                    <tr class="hover:bg-gray-50">
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="flex items-center">
-                                <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-3">
-                                    <i class="fas fa-truck text-blue-600 text-sm"></i>
+                        <tr class="hover:bg-gray-50 transition">
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-3">
+                                        <i class="fas fa-truck text-blue-600 text-sm"></i>
+                                    </div>
+                                    <span class="font-medium text-gray-800">{{ $fornecedor->nome }}</span>
                                 </div>
-                                <div class="text-sm font-medium text-gray-900">{{ $fornecedor->nome }}</div>
-                            </div>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $fornecedor->cnpj }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $fornecedor->telefone }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $fornecedor->email }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                            <div class="flex space-x-2">
-                                <a href="{{ route('fornecedores.show', $fornecedor->id_fornecedor) }}" 
-                                   class="text-green-600 hover:text-green-900" title="Visualizar">
-                                    <i class="fas fa-eye"></i>
-                                </a>
-                                <a href="{{ route('fornecedores.edit', $fornecedor->id_fornecedor) }}" 
-                                   class="text-blue-600 hover:text-blue-900" title="Editar">
-                                    <i class="fas fa-edit"></i>
-                                </a>
-                                <form action="{{ route('fornecedores.destroy', $fornecedor->id_fornecedor) }}" 
-                                      method="POST" class="inline" onsubmit="return confirm('Tem certeza que deseja excluir este fornecedor?')">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="text-red-600 hover:text-red-900" title="Excluir">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </form>
-                            </div>
-                        </td>
-                    </tr>
+                            </td>
+                            <td class="px-6 py-4 text-gray-800">{{ $fornecedor->cnpj }}</td>
+                            <td class="px-6 py-4 text-gray-800">{{ $fornecedor->telefone }}</td>
+                            <td class="px-6 py-4 text-gray-800">{{ $fornecedor->email }}</td>
+                            <td class="px-6 py-4 text-gray-800">{{ $fornecedor->cidade ?? '—' }}</td>
+                            <td class="px-6 py-4 text-gray-800">
+                                <div class="flex space-x-3">
+                                    <a href="{{ route('fornecedores.show', $fornecedor->id_fornecedor) }}" class="text-green-600 hover:text-green-800" title="Visualizar">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a href="{{ route('fornecedores.edit', $fornecedor->id_fornecedor) }}" class="text-blue-600 hover:text-blue-800" title="Editar">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <form action="{{ route('fornecedores.destroy', $fornecedor->id_fornecedor) }}" method="POST" onsubmit="return confirm('Excluir este fornecedor?')" class="inline">
+                                        @csrf @method('DELETE')
+                                        <button type="submit" class="text-red-600 hover:text-red-800" title="Excluir">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
                     @empty
-                    <tr>
-                        <td colspan="5" class="px-6 py-4 text-center text-sm text-gray-500">
-                            Nenhum fornecedor cadastrado.
-                        </td>
-                    </tr>
+                        <tr>
+                            <td colspan="6" class="text-center py-4 text-gray-500">Nenhum fornecedor encontrado.</td>
+                        </tr>
                     @endforelse
                 </tbody>
             </table>
