@@ -54,7 +54,7 @@
 </style>
 
 <!-- Context Menu -->
-<div id="context-menu" class="hidden fixed bg-white shadow-lg rounded-lg border border-gray-200 z-50 w-44">
+<div id="context-menu" class=" fixed bg-white shadow-lg rounded-lg border border-gray-200 z-50 w-44">
     <ul class="text-sm text-gray-700">
         <li class="px-4 py-2 hover:bg-gray-100 cursor-pointer flex items-center gap-2" id="verDetalhes">🔍 Ver detalhes</li>
         <li class="px-4 py-2 hover:bg-gray-100 cursor-pointer flex items-center gap-2" id="editar">✏️ Editar</li>
