@@ -73,12 +73,15 @@
                         class="w-full rounded-lg border border-gray-300 p-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                 </div>
 
-                
-                <div>
-                    <label class="block text-sm font-medium mb-1">Data da Compra</label>
-                    <input type="text" name="data_compra" id="data_compra" placeholder="dd/mm/aaaa"
-                        value="<?php echo e(old('data_compra')); ?>" class="w-full rounded-lg border border-gray-300 p-2" required>
-                </div>
+               
+<div>
+    <label for="data_compra" class="block text-sm font-medium mb-1 text-gray-700">Data da Compra</label>
+    <input type="date" name="data_compra" id="data_compra"
+           value="<?php echo e(old('data_compra')); ?>"
+           class="w-full rounded-lg border border-gray-300 p-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+           required>
+</div>
+
 
                 
                 <div>

@@ -9,16 +9,46 @@ use Carbon\Carbon;
 
 class CompraController extends Controller
 {
-    /** 🔹 Listagem de compras */
-    public function index()
+    /** 🔹 Listagem de compras com busca e filtro */
+    public function index(Request $request)
     {
-        $compras = Compra::select('compras.*', 'fornecedores.nome as fornecedor_nome')
-            ->leftJoin('fornecedores', 'compras.id_fornecedor', '=', 'fornecedores.id_fornecedor')
-            ->orderByDesc('compras.data_compra')
-            ->get();
+        $query = Compra::select('compras.*', 'fornecedores.nome as fornecedor_nome')
+            ->leftJoin('fornecedores', 'compras.id_fornecedor', '=', 'fornecedores.id_fornecedor');
 
-        return view('compras.index', compact('compras'));
+        // 🔹 Filtros dinâmicos
+        if ($request->filled('status')) {
+            $query->where('compras.status', $request->status);
+        }
+
+        if ($request->filled('tipo')) {
+            $query->where('compras.tipo', $request->tipo);
+        }
+
+        if ($request->filled('id_fornecedor')) {
+            $query->where('compras.id_fornecedor', $request->id_fornecedor);
+        }
+
+        if ($request->filled('busca')) {
+            $busca = $request->busca;
+            $query->where(function ($q) use ($busca) {
+                $q->where('compras.descricao', 'like', "%{$busca}%")
+                    ->orWhere('compras.id_compra', 'like', "%{$busca}%")
+                    ->orWhere('compras.nota_fiscal', 'like', "%{$busca}%");
+            });
+        }
+
+        if ($request->filled('data_inicio') && $request->filled('data_fim')) {
+            $query->whereBetween('compras.data_compra', [$request->data_inicio, $request->data_fim]);
+        }
+
+        // 🔹 Ordenar da mais recente para a mais antiga
+        $compras = $query->orderByDesc('compras.id_compra')->get();
+
+        $fornecedores = Fornecedor::orderBy('nome')->get();
+
+        return view('compras.index', compact('compras', 'fornecedores'));
     }
+
 
     /** 🔹 Exibir formulário de criação */
     public function create()
