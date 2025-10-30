@@ -13,7 +13,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 
-<body class="bg-gray-50 h-screen flex overflow-hidden">
+<body class="bg-gray-50 min-h-screen flex overflow-x-hidden overflow-y-auto">
 
     <!-- Overlay (escurece o fundo no mobile) -->
     <div id="sidebarOverlay"
@@ -24,10 +24,10 @@
     @include('layouts.sidebar')
 
     <!-- Conteúdo Principal -->
-    <div class="flex-1 flex flex-col overflow-hidden">
+    <div class="flex-1 flex flex-col min-h-screen">
 
         <!-- Header -->
-        <header class="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between shadow-sm">
+        <header class="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between shadow-sm sticky top-0 z-40">
             <div class="flex items-center space-x-3">
                 <!-- Botão abrir sidebar (mobile) -->
                 <button id="sidebarToggle" class="text-gray-700 hover:text-gray-900 lg:hidden">
@@ -68,7 +68,7 @@
         </header>
 
         <!-- Página -->
-        <main class="flex-1 overflow-y-auto p-6">
+        <main class="flex-1 overflow-y-auto scroll-smooth p-4 sm:p-6">
             @yield('content')
         </main>
     </div>
@@ -88,11 +88,13 @@
             function openSidebar() {
                 sidebar.classList.remove('-translate-x-full');
                 overlay.classList.remove('hidden');
+                document.body.classList.add('overflow-hidden'); // trava o fundo ao abrir sidebar
             }
 
             function closeSidebar() {
                 sidebar.classList.add('-translate-x-full');
                 overlay.classList.add('hidden');
+                document.body.classList.remove('overflow-hidden');
             }
 
             toggle?.addEventListener('click', openSidebar);
