@@ -10,16 +10,16 @@
            z-40 transition-transform duration-300 ease-in-out shadow-lg lg:shadow-none">
 
     <div class="flex flex-col h-full">
-        <!-- Header com botão de fechar (aparece só no mobile) -->
-        <div class="flex items-center justify-between bg-[#3B1F72] px-6 py-4 border-b border-[#5E3BAE]">
+        <!-- Header com logo e botão de fechar -->
+        <div class="flex items-center justify-between bg-[#3B1F72] px-6 py-4 border-b border-[#5E3BAE] flex-shrink-0">
             <img src="<?php echo e(asset('img/logo/logo.svg')); ?>" alt="Logo" class="w-full max-h-16 object-contain">
             <button id="sidebarClose" class="text-white text-xl lg:hidden ml-3 hover:text-gray-200">
                 <i class="fas fa-times"></i>
             </button>
         </div>
 
-        <!-- Navegação -->
-        <nav class="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
+        <!-- Navegação com rolagem -->
+        <nav class="flex-1 px-4 py-6 space-y-2 overflow-y-auto no-scrollbar">
             <a href="<?php echo e(route('dashboard')); ?>"
                 class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-[#6A38C1] transition <?php echo e(request()->is('/') ? 'bg-[#6A38C1]' : ''); ?>">
                 <i class="fas fa-home w-5"></i>
@@ -83,8 +83,8 @@
             </a>
         </nav>
 
-        <!-- Footer -->
-        <div class="px-4 py-4 border-t border-[#5E3BAE] bg-[#3B1F72]">
+        <!-- Footer fixo -->
+        <div class="px-4 py-4 border-t border-[#5E3BAE] bg-[#3B1F72] flex-shrink-0">
             <div class="flex items-center space-x-3">
                 <div class="w-8 h-8 bg-gradient-to-r from-[#6A38C1] to-[#4E2A8C] rounded-full flex items-center justify-center">
                     <span class="text-white text-sm font-medium"><?php echo e(substr(auth()->user()->nome, 0, 1)); ?></span>
