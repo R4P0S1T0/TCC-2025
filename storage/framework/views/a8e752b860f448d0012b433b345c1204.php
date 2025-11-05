@@ -13,9 +13,9 @@
     
     <div class="flex justify-between items-center mb-8">
         <h1 class="text-2xl font-semibold text-gray-800">Clientes</h1>
-        <a href="<?php echo e(route('clientes.create')); ?>" 
-           class="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition">
-            + Novo Cliente
+         <a href="<?php echo e(route('clientes.create')); ?>" 
+           class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
+            <i class="fas fa-plus mr-2"></i>Novo Cliente
         </a>
     </div>
 
