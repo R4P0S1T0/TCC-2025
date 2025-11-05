@@ -61,7 +61,7 @@ Route::middleware(['auth'])->group(function () {
     Route::prefix('fluxo-caixa')->name('fluxo-caixa.')->group(function () {
         Route::get('/', [FluxoCaixaController::class, 'index'])->name('index');
         Route::get('/export/pdf', [FluxoCaixaController::class, 'exportPdf'])->name('export.pdf');
-        Route::get('/export/excel', [FluxoCaixaController::class, 'exportCsv'])->name('export.excel');
+        Route::get('/export/excel', [FluxoCaixaController::class, 'exportExcel'])->name('export.excel');
     });
 
     // Calendário (caso precise endpoints separados para AJAX)

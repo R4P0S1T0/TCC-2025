@@ -67,6 +67,13 @@ class UsuarioController extends Controller
         return view('usuarios.edit', compact('usuario'));
     }
 
+    public function show($id)
+{
+    $usuario = \App\Models\User::findOrFail($id);
+    return view('usuarios.show', compact('usuario'));
+}
+
+
     public function update(Request $request, $id)
     {
         try {
