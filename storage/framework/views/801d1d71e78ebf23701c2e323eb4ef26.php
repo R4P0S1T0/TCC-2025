@@ -15,6 +15,7 @@
     
     <form method="GET" action="<?php echo e(route('contas-receber.index')); ?>"
           class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 bg-white p-4 rounded-lg shadow border border-gray-200">
+
         <!-- Status -->
         <div>
             <label class="text-sm block mb-1 text-gray-700">Status</label>
@@ -26,8 +27,8 @@
             </select>
         </div>
 
-        <!-- Período -->
-        <div class="flex gap-2">
+        <!-- Período (responsivo) -->
+        <div class="flex flex-col sm:flex-row gap-2">
             <div class="flex-1">
                 <label class="text-sm block mb-1 text-gray-700">De</label>
                 <input type="date" name="data_inicio" value="<?php echo e(request('data_inicio')); ?>"
