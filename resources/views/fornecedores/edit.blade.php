@@ -13,7 +13,7 @@
     </div>
 
     <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <form method="POST" action="{{ route('fornecedores.update', $fornecedor->id_fornecedor) }}">
+        <form method="POST" action="{{ route('fornecedores.update', $fornecedor->id_fornecedor) }}" id="fornecedorForm">
             @csrf
             @method('PUT')
             
@@ -26,17 +26,16 @@
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">CNPJ *</label>
-                    <input type="text" name="cnpj" value="{{ old('cnpj', $fornecedor->cnpj) }}" required 
+                    <input type="text" id="cnpj" name="cnpj" value="{{ old('cnpj', $fornecedor->cnpj) }}" required 
                            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                           placeholder="00.000.000/0000-00"
-                           maxlength="18">
+                           placeholder="00.000.000/0000-00" maxlength="18">
+                    <p id="cnpjMsg" class="text-xs text-gray-500 mt-1">Digite um CNPJ válido.</p>
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Telefone *</label>
-                    <input type="text" name="telefone" value="{{ old('telefone', $fornecedor->telefone) }}" required 
+                    <input type="text" id="telefone" name="telefone" value="{{ old('telefone', $fornecedor->telefone) }}" required 
                            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                           placeholder="(11) 99999-9999"
-                           maxlength="15">
+                           placeholder="(11) 99999-9999" maxlength="15">
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">E-mail *</label>
@@ -46,29 +45,28 @@
                 </div>
             </div>
 
-            <!-- Seção de Endereço com CEP -->
+            {{-- Endereço --}}
             <div class="border-t border-gray-200 pt-6 mb-6">
                 <h3 class="text-lg font-semibold text-gray-800 mb-4">Endereço</h3>
                 
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
-                    <div class="md:col-span-1">
+                    <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">CEP</label>
-                        <input type="text" name="cep" value="{{ old('cep', $fornecedor->cep) }}" 
+                        <input type="text" id="cep" name="cep" value="{{ old('cep', $fornecedor->cep) }}" 
                                class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                               placeholder="00000-000"
-                               maxlength="9">
-                        <p class="text-xs text-gray-500 mt-1">Digite o CEP para buscar o endereço</p>
+                               placeholder="00000-000" maxlength="9">
+                        <p id="cepStatus" class="text-xs text-gray-500 mt-1">Digite o CEP para buscar o endereço.</p>
                     </div>
                     <div class="md:col-span-3">
                         <label class="block text-sm font-medium text-gray-700 mb-1">Logradouro *</label>
-                        <input type="text" name="logradouro" value="{{ old('logradouro', $fornecedor->logradouro) }}" required 
+                        <input type="text" id="logradouro" name="logradouro" value="{{ old('logradouro', $fornecedor->logradouro) }}" required 
                                class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                placeholder="Rua, Avenida, etc.">
                     </div>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
-                    <div class="md:col-span-1">
+                    <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Número *</label>
                         <input type="text" name="numero" value="{{ old('numero', $fornecedor->numero) }}" required 
                                class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
@@ -80,7 +78,7 @@
                                class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                placeholder="Apto, Sala, etc.">
                     </div>
-                    <div class="md:col-span-1">
+                    <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Bairro *</label>
                         <input type="text" name="bairro" value="{{ old('bairro', $fornecedor->bairro) }}" required 
                                class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
@@ -91,43 +89,15 @@
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div class="md:col-span-2">
                         <label class="block text-sm font-medium text-gray-700 mb-1">Cidade *</label>
-                        <input type="text" name="cidade" value="{{ old('cidade', $fornecedor->cidade) }}" required 
+                        <input type="text" id="cidade" name="cidade" value="{{ old('cidade', $fornecedor->cidade) }}" required 
                                class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                placeholder="Cidade">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Estado *</label>
-                        <select name="estado" required 
-                                class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                            <option value="">Selecione</option>
-                            <option value="AC" {{ old('estado', $fornecedor->estado) == 'AC' ? 'selected' : '' }}>Acre</option>
-                            <option value="AL" {{ old('estado', $fornecedor->estado) == 'AL' ? 'selected' : '' }}>Alagoas</option>
-                            <option value="AP" {{ old('estado', $fornecedor->estado) == 'AP' ? 'selected' : '' }}>Amapá</option>
-                            <option value="AM" {{ old('estado', $fornecedor->estado) == 'AM' ? 'selected' : '' }}>Amazonas</option>
-                            <option value="BA" {{ old('estado', $fornecedor->estado) == 'BA' ? 'selected' : '' }}>Bahia</option>
-                            <option value="CE" {{ old('estado', $fornecedor->estado) == 'CE' ? 'selected' : '' }}>Ceará</option>
-                            <option value="DF" {{ old('estado', $fornecedor->estado) == 'DF' ? 'selected' : '' }}>Distrito Federal</option>
-                            <option value="ES" {{ old('estado', $fornecedor->estado) == 'ES' ? 'selected' : '' }}>Espírito Santo</option>
-                            <option value="GO" {{ old('estado', $fornecedor->estado) == 'GO' ? 'selected' : '' }}>Goiás</option>
-                            <option value="MA" {{ old('estado', $fornecedor->estado) == 'MA' ? 'selected' : '' }}>Maranhão</option>
-                            <option value="MT" {{ old('estado', $fornecedor->estado) == 'MT' ? 'selected' : '' }}>Mato Grosso</option>
-                            <option value="MS" {{ old('estado', $fornecedor->estado) == 'MS' ? 'selected' : '' }}>Mato Grosso do Sul</option>
-                            <option value="MG" {{ old('estado', $fornecedor->estado) == 'MG' ? 'selected' : '' }}>Minas Gerais</option>
-                            <option value="PA" {{ old('estado', $fornecedor->estado) == 'PA' ? 'selected' : '' }}>Pará</option>
-                            <option value="PB" {{ old('estado', $fornecedor->estado) == 'PB' ? 'selected' : '' }}>Paraíba</option>
-                            <option value="PR" {{ old('estado', $fornecedor->estado) == 'PR' ? 'selected' : '' }}>Paraná</option>
-                            <option value="PE" {{ old('estado', $fornecedor->estado) == 'PE' ? 'selected' : '' }}>Pernambuco</option>
-                            <option value="PI" {{ old('estado', $fornecedor->estado) == 'PI' ? 'selected' : '' }}>Piauí</option>
-                            <option value="RJ" {{ old('estado', $fornecedor->estado) == 'RJ' ? 'selected' : '' }}>Rio de Janeiro</option>
-                            <option value="RN" {{ old('estado', $fornecedor->estado) == 'RN' ? 'selected' : '' }}>Rio Grande do Norte</option>
-                            <option value="RS" {{ old('estado', $fornecedor->estado) == 'RS' ? 'selected' : '' }}>Rio Grande do Sul</option>
-                            <option value="RO" {{ old('estado', $fornecedor->estado) == 'RO' ? 'selected' : '' }}>Rondônia</option>
-                            <option value="RR" {{ old('estado', $fornecedor->estado) == 'RR' ? 'selected' : '' }}>Roraima</option>
-                            <option value="SC" {{ old('estado', $fornecedor->estado) == 'SC' ? 'selected' : '' }}>Santa Catarina</option>
-                            <option value="SP" {{ old('estado', $fornecedor->estado) == 'SP' ? 'selected' : '' }}>São Paulo</option>
-                            <option value="SE" {{ old('estado', $fornecedor->estado) == 'SE' ? 'selected' : '' }}>Sergipe</option>
-                            <option value="TO" {{ old('estado', $fornecedor->estado) == 'TO' ? 'selected' : '' }}>Tocantins</option>
-                        </select>
+                        <input type="text" id="estado" name="estado" maxlength="2" value="{{ old('estado', $fornecedor->estado) }}" required
+                               class="w-full border border-gray-300 rounded-lg px-3 py-2 uppercase focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                               placeholder="UF">
                     </div>
                 </div>
             </div>
@@ -136,7 +106,7 @@
                 <a href="{{ route('fornecedores.index') }}" class="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition">
                     Cancelar
                 </a>
-                <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+                <button type="submit" id="btnSalvar" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed">
                     <i class="fas fa-save mr-2"></i>Atualizar Fornecedor
                 </button>
             </div>
@@ -144,18 +114,107 @@
     </div>
 </div>
 
+{{-- Scripts de máscara, validação e CEP --}}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Buscar CEP quando o campo perder o foco
-    const cepInput = document.querySelector('input[name="cep"]');
-    if (cepInput) {
-        cepInput.addEventListener('blur', function() {
-            const cep = this.value.replace(/\D/g, '');
-            if (cep.length === 8) {
-                buscarCEP(cep);
+    const cnpjInput = document.getElementById('cnpj');
+    const msg = document.getElementById('cnpjMsg');
+    const btn = document.getElementById('btnSalvar');
+    const tel = document.getElementById('telefone');
+    const cep = document.getElementById('cep');
+    const cepStatus = document.getElementById('cepStatus');
+
+    // --- Máscara telefone ---
+    tel.addEventListener('input', () => {
+        let v = tel.value.replace(/\D/g, '');
+        if (v.length > 10) v = v.replace(/^(\d{2})(\d{5})(\d{4}).*/, '($1) $2-$3');
+        else if (v.length > 5) v = v.replace(/^(\d{2})(\d{4})(\d{0,4}).*/, '($1) $2-$3');
+        else if (v.length > 2) v = v.replace(/^(\d{2})(\d{0,5})/, '($1) $2');
+        else v = v.replace(/^(\d*)/, '($1');
+        tel.value = v;
+    });
+
+    // --- Máscara e validação CNPJ ---
+    cnpjInput.addEventListener('input', () => {
+        let v = cnpjInput.value.replace(/\D/g, '');
+        v = v.replace(/^(\d{2})(\d)/, '$1.$2');
+        v = v.replace(/^(\d{2})\.(\d{3})(\d)/, '$1.$2.$3');
+        v = v.replace(/\.(\d{3})(\d)/, '.$1/$2');
+        v = v.replace(/(\d{4})(\d)/, '$1-$2');
+        cnpjInput.value = v;
+
+        if (v.length === 18) {
+            if (validarCNPJ(v)) {
+                msg.textContent = '✔ CNPJ válido.';
+                msg.className = 'text-xs text-green-600 mt-1';
+                btn.disabled = false;
+            } else {
+                msg.textContent = '✖ CNPJ inválido.';
+                msg.className = 'text-xs text-red-600 mt-1';
+                btn.disabled = true;
             }
-        });
+        } else {
+            msg.textContent = 'Digite um CNPJ válido.';
+            msg.className = 'text-xs text-gray-500 mt-1';
+            btn.disabled = true;
+        }
+    });
+
+    // --- Função validar CNPJ ---
+    function validarCNPJ(cnpj) {
+        cnpj = cnpj.replace(/[^\d]+/g, '');
+        if (cnpj.length !== 14 || /^(\d)\1+$/.test(cnpj)) return false;
+
+        let tamanho = cnpj.length - 2;
+        let numeros = cnpj.substring(0, tamanho);
+        let digitos = cnpj.substring(tamanho);
+        let soma = 0;
+        let pos = tamanho - 7;
+        for (let i = tamanho; i >= 1; i--) {
+            soma += numeros.charAt(tamanho - i) * pos--;
+            if (pos < 2) pos = 9;
+        }
+        let resultado = soma % 11 < 2 ? 0 : 11 - soma % 11;
+        if (resultado != digitos.charAt(0)) return false;
+        tamanho++;
+        numeros = cnpj.substring(0, tamanho);
+        soma = 0;
+        pos = tamanho - 7;
+        for (let i = tamanho; i >= 1; i--) {
+            soma += numeros.charAt(tamanho - i) * pos--;
+            if (pos < 2) pos = 9;
+        }
+        resultado = soma % 11 < 2 ? 0 : 11 - soma % 11;
+        return resultado == digitos.charAt(1);
     }
+
+    // --- Busca automática de CEP ---
+    cep.addEventListener('input', async () => {
+        let v = cep.value.replace(/\D/g, '');
+        if (v.length > 5) v = v.replace(/^(\d{5})(\d)/, '$1-$2');
+        cep.value = v;
+
+        if (v.length === 9) {
+            cepStatus.textContent = 'Buscando endereço...';
+            try {
+                const res = await fetch(`https://viacep.com.br/ws/${v}/json/`);
+                const data = await res.json();
+                if (!data.erro) {
+                    document.getElementById('logradouro').value = data.logradouro || '';
+                    document.getElementById('cidade').value = data.localidade || '';
+                    document.getElementById('estado').value = data.uf || '';
+                    cepStatus.textContent = '✔ Endereço encontrado.';
+                    cepStatus.className = 'text-xs text-green-600 mt-1';
+                } else {
+                    cepStatus.textContent = 'CEP não encontrado.';
+                    cepStatus.className = 'text-xs text-red-600 mt-1';
+                }
+            } catch {
+                cepStatus.textContent = 'Erro ao consultar CEP.';
+                cepStatus.className = 'text-xs text-red-600 mt-1';
+            }
+        } else cepStatus.textContent = '';
+    });
 });
 </script>
 @endsection

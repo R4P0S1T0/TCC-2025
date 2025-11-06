@@ -11,7 +11,7 @@
     </div>
 
     <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <form method="POST" action="<?php echo e(route('fornecedores.store')); ?>">
+        <form method="POST" action="<?php echo e(route('fornecedores.store')); ?>" id="fornecedorForm">
             <?php echo csrf_field(); ?>
             
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
@@ -23,17 +23,16 @@
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">CNPJ *</label>
-                    <input type="text" name="cnpj" required 
+                    <input type="text" name="cnpj" id="cnpj" required 
                            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                           placeholder="00.000.000/0000-00"
-                           maxlength="18">
+                           placeholder="00.000.000/0000-00" maxlength="18">
+                    <p id="cnpjMsg" class="text-xs text-gray-500 mt-1">Digite um CNPJ válido.</p>
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Telefone *</label>
-                    <input type="text" name="telefone" required 
+                    <input type="text" name="telefone" id="telefone" required 
                            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                           placeholder="(11) 99999-9999"
-                           maxlength="15">
+                           placeholder="(11) 99999-9999" maxlength="15">
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">E-mail *</label>
@@ -43,29 +42,28 @@
                 </div>
             </div>
 
-            <!-- Seção de Endereço com CEP -->
+            
             <div class="border-t border-gray-200 pt-6 mb-6">
                 <h3 class="text-lg font-semibold text-gray-800 mb-4">Endereço</h3>
                 
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
                     <div class="md:col-span-1">
                         <label class="block text-sm font-medium text-gray-700 mb-1">CEP</label>
-                        <input type="text" name="cep" 
+                        <input type="text" name="cep" id="cep"
                                class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                               placeholder="00000-000"
-                               maxlength="9">
-                        <p class="text-xs text-gray-500 mt-1">Digite o CEP para buscar o endereço</p>
+                               placeholder="00000-000" maxlength="9">
+                        <p id="cepStatus" class="text-xs text-gray-500 mt-1">Digite o CEP para buscar o endereço</p>
                     </div>
                     <div class="md:col-span-3">
                         <label class="block text-sm font-medium text-gray-700 mb-1">Logradouro *</label>
-                        <input type="text" name="logradouro" required 
+                        <input type="text" name="logradouro" id="logradouro" required 
                                class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                placeholder="Rua, Avenida, etc.">
                     </div>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
-                    <div class="md:col-span-1">
+                    <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Número *</label>
                         <input type="text" name="numero" required 
                                class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
@@ -77,7 +75,7 @@
                                class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                placeholder="Apto, Sala, etc.">
                     </div>
-                    <div class="md:col-span-1">
+                    <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Bairro *</label>
                         <input type="text" name="bairro" required 
                                class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
@@ -88,43 +86,15 @@
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div class="md:col-span-2">
                         <label class="block text-sm font-medium text-gray-700 mb-1">Cidade *</label>
-                        <input type="text" name="cidade" required 
+                        <input type="text" name="cidade" id="cidade" required 
                                class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                placeholder="Cidade">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Estado *</label>
-                        <select name="estado" required 
-                                class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                            <option value="">Selecione</option>
-                            <option value="AC">Acre</option>
-                            <option value="AL">Alagoas</option>
-                            <option value="AP">Amapá</option>
-                            <option value="AM">Amazonas</option>
-                            <option value="BA">Bahia</option>
-                            <option value="CE">Ceará</option>
-                            <option value="DF">Distrito Federal</option>
-                            <option value="ES">Espírito Santo</option>
-                            <option value="GO">Goiás</option>
-                            <option value="MA">Maranhão</option>
-                            <option value="MT">Mato Grosso</option>
-                            <option value="MS">Mato Grosso do Sul</option>
-                            <option value="MG">Minas Gerais</option>
-                            <option value="PA">Pará</option>
-                            <option value="PB">Paraíba</option>
-                            <option value="PR">Paraná</option>
-                            <option value="PE">Pernambuco</option>
-                            <option value="PI">Piauí</option>
-                            <option value="RJ">Rio de Janeiro</option>
-                            <option value="RN">Rio Grande do Norte</option>
-                            <option value="RS">Rio Grande do Sul</option>
-                            <option value="RO">Rondônia</option>
-                            <option value="RR">Roraima</option>
-                            <option value="SC">Santa Catarina</option>
-                            <option value="SP">São Paulo</option>
-                            <option value="SE">Sergipe</option>
-                            <option value="TO">Tocantins</option>
-                        </select>
+                        <input type="text" name="estado" id="estado" maxlength="2" required
+                               class="w-full border border-gray-300 rounded-lg px-3 py-2 uppercase focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                               placeholder="UF">
                     </div>
                 </div>
             </div>
@@ -133,7 +103,7 @@
                 <a href="<?php echo e(route('fornecedores.index')); ?>" class="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition">
                     Cancelar
                 </a>
-                <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+                <button type="submit" id="btnSalvar" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed">
                     <i class="fas fa-save mr-2"></i>Cadastrar Fornecedor
                 </button>
             </div>
@@ -143,16 +113,104 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Buscar CEP quando o campo perder o foco
-    const cepInput = document.querySelector('input[name="cep"]');
-    if (cepInput) {
-        cepInput.addEventListener('blur', function() {
-            const cep = this.value.replace(/\D/g, '');
-            if (cep.length === 8) {
-                buscarCEP(cep);
+    const cnpjInput = document.getElementById('cnpj');
+    const msg = document.getElementById('cnpjMsg');
+    const btn = document.getElementById('btnSalvar');
+    const tel = document.getElementById('telefone');
+    const cep = document.getElementById('cep');
+    const cepStatus = document.getElementById('cepStatus');
+
+    // --- Máscara telefone ---
+    tel.addEventListener('input', () => {
+        let v = tel.value.replace(/\D/g, '');
+        if (v.length > 10) v = v.replace(/^(\d{2})(\d{5})(\d{4}).*/, '($1) $2-$3');
+        else if (v.length > 5) v = v.replace(/^(\d{2})(\d{4})(\d{0,4}).*/, '($1) $2-$3');
+        else if (v.length > 2) v = v.replace(/^(\d{2})(\d{0,5})/, '($1) $2');
+        else v = v.replace(/^(\d*)/, '($1');
+        tel.value = v;
+    });
+
+    // --- Máscara e validação CNPJ ---
+    cnpjInput.addEventListener('input', () => {
+        let v = cnpjInput.value.replace(/\D/g, '');
+        v = v.replace(/^(\d{2})(\d)/, '$1.$2');
+        v = v.replace(/^(\d{2})\.(\d{3})(\d)/, '$1.$2.$3');
+        v = v.replace(/\.(\d{3})(\d)/, '.$1/$2');
+        v = v.replace(/(\d{4})(\d)/, '$1-$2');
+        cnpjInput.value = v;
+
+        if (v.length === 18) {
+            if (validarCNPJ(v)) {
+                msg.textContent = '✔ CNPJ válido.';
+                msg.className = 'text-xs text-green-600 mt-1';
+                btn.disabled = false;
+            } else {
+                msg.textContent = '✖ CNPJ inválido.';
+                msg.className = 'text-xs text-red-600 mt-1';
+                btn.disabled = true;
             }
-        });
+        } else {
+            msg.textContent = 'Digite um CNPJ válido.';
+            msg.className = 'text-xs text-gray-500 mt-1';
+            btn.disabled = true;
+        }
+    });
+
+    // --- Função validar CNPJ ---
+    function validarCNPJ(cnpj) {
+        cnpj = cnpj.replace(/[^\d]+/g, '');
+        if (cnpj.length !== 14 || /^(\d)\1+$/.test(cnpj)) return false;
+
+        let tamanho = cnpj.length - 2;
+        let numeros = cnpj.substring(0, tamanho);
+        let digitos = cnpj.substring(tamanho);
+        let soma = 0;
+        let pos = tamanho - 7;
+        for (let i = tamanho; i >= 1; i--) {
+            soma += numeros.charAt(tamanho - i) * pos--;
+            if (pos < 2) pos = 9;
+        }
+        let resultado = soma % 11 < 2 ? 0 : 11 - soma % 11;
+        if (resultado != digitos.charAt(0)) return false;
+        tamanho++;
+        numeros = cnpj.substring(0, tamanho);
+        soma = 0;
+        pos = tamanho - 7;
+        for (let i = tamanho; i >= 1; i--) {
+            soma += numeros.charAt(tamanho - i) * pos--;
+            if (pos < 2) pos = 9;
+        }
+        resultado = soma % 11 < 2 ? 0 : 11 - soma % 11;
+        return resultado == digitos.charAt(1);
     }
+
+    // --- Busca automática de CEP ---
+    cep.addEventListener('input', async () => {
+        let v = cep.value.replace(/\D/g, '');
+        if (v.length > 5) v = v.replace(/^(\d{5})(\d)/, '$1-$2');
+        cep.value = v;
+
+        if (v.length === 9) {
+            cepStatus.textContent = 'Buscando endereço...';
+            try {
+                const res = await fetch(`https://viacep.com.br/ws/${v}/json/`);
+                const data = await res.json();
+                if (!data.erro) {
+                    document.getElementById('logradouro').value = data.logradouro || '';
+                    document.getElementById('cidade').value = data.localidade || '';
+                    document.getElementById('estado').value = data.uf || '';
+                    cepStatus.textContent = '✔ Endereço encontrado.';
+                    cepStatus.className = 'text-xs text-green-600 mt-1';
+                } else {
+                    cepStatus.textContent = 'CEP não encontrado.';
+                    cepStatus.className = 'text-xs text-red-600 mt-1';
+                }
+            } catch {
+                cepStatus.textContent = 'Erro ao consultar CEP.';
+                cepStatus.className = 'text-xs text-red-600 mt-1';
+            }
+        } else cepStatus.textContent = '';
+    });
 });
 </script>
 <?php $__env->stopSection(); ?>
