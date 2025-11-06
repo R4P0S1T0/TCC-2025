@@ -70,6 +70,7 @@
                            maxlength="14"
                            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                            placeholder="000.000.000-00">
+                    <p id="cpfMsg" class="text-xs text-gray-500 mt-1">Digite um CPF válido.</p>
                 </div>
 
                 
@@ -163,25 +164,55 @@ document.addEventListener('DOMContentLoaded', () => {
     const cpfInput = document.getElementById('cpf');
     const telInput = document.getElementById('telefone');
     const cepInput = document.getElementById('cep');
+    const cpfMsg = document.getElementById('cpfMsg');
 
     const masks = {
-        telefone: value => value
-            .replace(/\D/g, '')
+        telefone: v => v.replace(/\D/g, '')
             .replace(/^(\d{2})(\d)/g, '($1) $2')
             .replace(/(\d{4,5})(\d{4})$/, '$1-$2'),
-        cpf: value => {
-            value = value.replace(/\D/g, '');
-            if (value.length <= 3) return value;
-            if (value.length <= 6) return value.replace(/(\d{3})(\d+)/, '$1.$2');
-            if (value.length <= 9) return value.replace(/(\d{3})(\d{3})(\d+)/, '$1.$2.$3');
-            return value.replace(/(\d{3})(\d{3})(\d{3})(\d{1,2}).*/, '$1.$2.$3-$4');
-        },
-        cep: value => value.replace(/\D/g, '').replace(/^(\d{5})(\d)/, '$1-$2')
+        cpf: v => v.replace(/\D/g, '')
+            .replace(/(\d{3})(\d)/, '$1.$2')
+            .replace(/(\d{3})(\d)/, '$1.$2')
+            .replace(/(\d{3})(\d{1,2})$/, '$1-$2'),
+        cep: v => v.replace(/\D/g, '').replace(/^(\d{5})(\d)/, '$1-$2')
+    };
+
+    const validarCPF = cpf => {
+        cpf = cpf.replace(/\D/g, '');
+        if (cpf.length !== 11 || /^(\d)\1+$/.test(cpf)) return false;
+        let soma = 0;
+        for (let i = 0; i < 9; i++) soma += parseInt(cpf.charAt(i)) * (10 - i);
+        let resto = (soma * 10) % 11;
+        if (resto === 10 || resto === 11) resto = 0;
+        if (resto !== parseInt(cpf.charAt(9))) return false;
+        soma = 0;
+        for (let i = 0; i < 10; i++) soma += parseInt(cpf.charAt(i)) * (11 - i);
+        resto = (soma * 10) % 11;
+        if (resto === 10 || resto === 11) resto = 0;
+        return resto === parseInt(cpf.charAt(10));
     };
 
     if (telInput) telInput.addEventListener('input', e => e.target.value = masks.telefone(e.target.value));
-    if (cpfInput) cpfInput.addEventListener('input', e => e.target.value = masks.cpf(e.target.value));
     if (cepInput) cepInput.addEventListener('input', e => e.target.value = masks.cep(e.target.value));
+
+    if (cpfInput) {
+        cpfInput.addEventListener('input', e => {
+            e.target.value = masks.cpf(e.target.value);
+            const value = e.target.value;
+            if (value.length === 14) {
+                if (validarCPF(value)) {
+                    cpfMsg.textContent = '✔ CPF válido.';
+                    cpfMsg.className = 'text-xs text-green-600 mt-1';
+                } else {
+                    cpfMsg.textContent = '✖ CPF inválido.';
+                    cpfMsg.className = 'text-xs text-red-600 mt-1';
+                }
+            } else {
+                cpfMsg.textContent = 'Digite um CPF válido.';
+                cpfMsg.className = 'text-xs text-gray-500 mt-1';
+            }
+        });
+    }
 });
 </script>
 <?php $__env->stopSection(); ?>

@@ -48,6 +48,7 @@
                         class="w-full border border-gray-300 rounded-lg px-3 py-2 
                                focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                         placeholder="000.000.000-00">
+                    <p id="cpfMsg" class="text-xs text-gray-500 mt-1">Digite um CPF válido.</p>
                 </div>
 
                 {{-- E-mail --}}
@@ -103,85 +104,6 @@
                 </div>
             </div>
 
-            {{-- Endereço --}}
-            <div class="border-t border-gray-200 pt-6 mb-6">
-                <h3 class="text-lg font-semibold text-gray-800 mb-4">Endereço</h3>
-
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
-                    {{-- CEP --}}
-                    <div class="md:col-span-1">
-                        <label class="block text-sm font-medium text-gray-700 mb-1">CEP</label>
-                        <input type="text" name="cep" id="cep" value="{{ old('cep') }}"
-                            maxlength="9"
-                            class="w-full border border-gray-300 rounded-lg px-3 py-2 
-                                   focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                            placeholder="00000-000">
-                    </div>
-
-                    {{-- Logradouro --}}
-                    <div class="md:col-span-3">
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Logradouro</label>
-                        <input type="text" name="logradouro" id="logradouro" value="{{ old('logradouro') }}"
-                            class="w-full border border-gray-300 rounded-lg px-3 py-2 
-                                   focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                            placeholder="Rua, Avenida, etc.">
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
-                    {{-- Número --}}
-                    <div class="md:col-span-1">
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Número</label>
-                        <input type="text" name="numero" id="numero" value="{{ old('numero') }}"
-                            class="w-full border border-gray-300 rounded-lg px-3 py-2 
-                                   focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                            placeholder="123">
-                    </div>
-
-                    {{-- Complemento --}}
-                    <div class="md:col-span-2">
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Complemento</label>
-                        <input type="text" name="complemento" id="complemento" value="{{ old('complemento') }}"
-                            class="w-full border border-gray-300 rounded-lg px-3 py-2 
-                                   focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                            placeholder="Apto, sala, etc.">
-                    </div>
-
-                    {{-- Bairro --}}
-                    <div class="md:col-span-1">
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Bairro</label>
-                        <input type="text" name="bairro" id="bairro" value="{{ old('bairro') }}"
-                            class="w-full border border-gray-300 rounded-lg px-3 py-2 
-                                   focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                            placeholder="Bairro">
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    {{-- Cidade --}}
-                    <div class="md:col-span-2">
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Cidade</label>
-                        <input type="text" name="cidade" id="cidade" value="{{ old('cidade') }}"
-                            class="w-full border border-gray-300 rounded-lg px-3 py-2 
-                                   focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                            placeholder="Cidade">
-                    </div>
-
-                    {{-- Estado --}}
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Estado</label>
-                        <select name="estado" id="estado"
-                            class="w-full border border-gray-300 rounded-lg px-3 py-2 
-                                   focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                            <option value="">Selecione</option>
-                            @foreach(['AC','AL','AP','AM','BA','CE','DF','ES','GO','MA','MT','MS','MG','PA','PB','PR','PE','PI','RJ','RN','RS','RO','RR','SC','SP','SE','TO'] as $uf)
-                                <option value="{{ $uf }}" {{ old('estado') == $uf ? 'selected' : '' }}>{{ $uf }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                </div>
-            </div>
-
             {{-- Botões --}}
             <div class="flex justify-end space-x-3 mt-6">
                 <a href="{{ route('usuarios.index') }}" 
@@ -204,10 +126,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const confirm = document.getElementById('senha_confirmation');
     const btn = document.getElementById('btnCadastrar');
     const requisitos = document.getElementById('senhaRequisitos');
+    const cpfInput = document.getElementById('cpf');
+    const cpfMsg = document.getElementById('cpfMsg');
 
     const regexSenha = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&\-_])[A-Za-z\d@$!%*?&\-_]{8,}$/;
 
-    function validar() {
+    // --- Validação da senha ---
+    function validarSenha() {
         if (regexSenha.test(senha.value) && senha.value === confirm.value) {
             requisitos.textContent = '✔ Senha forte e confirmada.';
             requisitos.className = 'text-xs text-green-600 mt-1';
@@ -218,9 +143,48 @@ document.addEventListener('DOMContentLoaded', () => {
             btn.disabled = true;
         }
     }
+    senha.addEventListener('input', validarSenha);
+    confirm.addEventListener('input', validarSenha);
 
-    senha.addEventListener('input', validar);
-    confirm.addEventListener('input', validar);
+    // --- Validação de CPF ---
+    function validarCPF(cpf) {
+        cpf = cpf.replace(/\D/g, '');
+        if (cpf.length !== 11 || /^(\d)\1+$/.test(cpf)) return false;
+
+        let soma = 0;
+        for (let i = 0; i < 9; i++) soma += parseInt(cpf.charAt(i)) * (10 - i);
+        let resto = (soma * 10) % 11;
+        if (resto === 10 || resto === 11) resto = 0;
+        if (resto !== parseInt(cpf.charAt(9))) return false;
+
+        soma = 0;
+        for (let i = 0; i < 10; i++) soma += parseInt(cpf.charAt(i)) * (11 - i);
+        resto = (soma * 10) % 11;
+        if (resto === 10 || resto === 11) resto = 0;
+
+        return resto === parseInt(cpf.charAt(10));
+    }
+
+    cpfInput.addEventListener('input', () => {
+        let v = cpfInput.value.replace(/\D/g, '');
+        v = v.replace(/(\d{3})(\d)/, '$1.$2');
+        v = v.replace(/(\d{3})(\d)/, '$1.$2');
+        v = v.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+        cpfInput.value = v;
+
+        if (v.length === 14) {
+            if (validarCPF(v)) {
+                cpfMsg.textContent = '✔ CPF válido.';
+                cpfMsg.className = 'text-xs text-green-600 mt-1';
+            } else {
+                cpfMsg.textContent = '✖ CPF inválido.';
+                cpfMsg.className = 'text-xs text-red-600 mt-1';
+            }
+        } else {
+            cpfMsg.textContent = 'Digite um CPF válido.';
+            cpfMsg.className = 'text-xs text-gray-500 mt-1';
+        }
+    });
 });
 </script>
 @endsection
