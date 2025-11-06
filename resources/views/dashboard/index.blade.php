@@ -118,7 +118,8 @@
 
 {{-- ✅ Scripts --}}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="{{ asset('js/dashboard.js') }}"></script>
+<script src="{{ asset('js/dashboard.js') }}?v={{ filemtime(public_path('js/dashboard.js')) }}"></script>
+
 
 <script>
     window.dashboardData = {
