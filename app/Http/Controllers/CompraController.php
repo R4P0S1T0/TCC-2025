@@ -5,17 +5,18 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Compra;
 use App\Models\Fornecedor;
+use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 
 class CompraController extends Controller
 {
-    /** 🔹 Listagem de compras com busca e filtro */
+    /** 🔹 Listagem de compras */
     public function index(Request $request)
     {
         $query = Compra::select('compras.*', 'fornecedores.nome as fornecedor_nome')
             ->leftJoin('fornecedores', 'compras.id_fornecedor', '=', 'fornecedores.id_fornecedor');
 
-        // 🔹 Filtros dinâmicos
+        // Filtros dinâmicos
         if ($request->filled('status')) {
             $query->where('compras.status', $request->status);
         }
@@ -41,14 +42,11 @@ class CompraController extends Controller
             $query->whereBetween('compras.data_compra', [$request->data_inicio, $request->data_fim]);
         }
 
-        // 🔹 Ordenar da mais recente para a mais antiga
         $compras = $query->orderByDesc('compras.id_compra')->get();
-
         $fornecedores = Fornecedor::orderBy('nome')->get();
 
         return view('compras.index', compact('compras', 'fornecedores'));
     }
-
 
     /** 🔹 Exibir formulário de criação */
     public function create()
@@ -57,9 +55,10 @@ class CompraController extends Controller
         return view('compras.create', compact('fornecedores'));
     }
 
-    /** 🔹 Salvar nova compra */
+    /** 🔹 Salvar nova compra e gerar conta a pagar */
     public function store(Request $request)
     {
+        // Normaliza valor e data
         if ($request->filled('valor_total')) {
             $valor = preg_replace('/[^\d,]/', '', $request->valor_total);
             $valor = str_replace('.', '', $valor);
@@ -72,6 +71,7 @@ class CompraController extends Controller
             $request->merge(['data_compra' => $data]);
         }
 
+        // Validação
         $validated = $request->validate([
             'descricao' => 'required|string|max:255',
             'id_fornecedor' => 'nullable|exists:fornecedores,id_fornecedor',
@@ -85,9 +85,19 @@ class CompraController extends Controller
 
         $validated['status'] = $validated['status'] ?? 'pendente';
 
-        Compra::create($validated);
+        // Cria compra
+        $compra = Compra::create($validated);
 
-        return redirect()->route('compras.index')->with('success', 'Compra cadastrada com sucesso!');
+        // 🔹 Cria conta a pagar vinculada
+        DB::table('contas_pagar')->insert([
+            'id_compra' => $compra->id_compra,
+            'valor' => $compra->valor_total,
+            'nota_fiscal' => $compra->nota_fiscal,
+            'data_vencimento' => $compra->data_compra,
+            'status' => 'pendente'
+        ]);
+
+        return redirect()->route('compras.index')->with('success', 'Compra cadastrada e conta a pagar criada com sucesso!');
     }
 
     /** 🔹 Editar compra */
@@ -95,7 +105,6 @@ class CompraController extends Controller
     {
         $compra = Compra::findOrFail($id);
         $fornecedores = Fornecedor::orderBy('nome')->get();
-
         return view('compras.edit', compact('compra', 'fornecedores'));
     }
 
@@ -115,9 +124,7 @@ class CompraController extends Controller
             try {
                 $data = Carbon::createFromFormat('d/m/Y', $request->data_compra)->format('Y-m-d');
                 $request->merge(['data_compra' => $data]);
-            } catch (\Exception $e) {
-                // ignora erro de formatação
-            }
+            } catch (\Exception $e) {}
         }
 
         $validated = $request->validate([
@@ -133,24 +140,29 @@ class CompraController extends Controller
 
         $compra->update($validated);
 
-        return redirect()->route('compras.index')->with('success', 'Compra atualizada com sucesso!');
+        // 🔹 Atualiza conta a pagar correspondente
+        DB::table('contas_pagar')
+            ->where('id_compra', $id)
+            ->update([
+                'valor' => $compra->valor_total,
+                'nota_fiscal' => $compra->nota_fiscal,
+                'data_vencimento' => $compra->data_compra,
+            ]);
+
+        return redirect()->route('compras.index')->with('success', 'Compra e conta a pagar atualizadas com sucesso!');
     }
 
-    /** 🔹 Excluir compra */
-    public function destroy($id)
-    {
-        Compra::findOrFail($id)->delete();
-
-        return redirect()->route('compras.index')->with('success', 'Compra excluída com sucesso!');
-    }
-
-    /** 🔹 Finalizar compra */
+    /** 🔹 Finalizar compra e marcar como paga no contas_pagar */
     public function finalizar($id)
     {
         $compra = Compra::findOrFail($id);
         $compra->update(['status' => 'finalizada']);
 
-        return redirect()->route('compras.index')->with('success', 'Compra finalizada com sucesso!');
+        DB::table('contas_pagar')
+            ->where('id_compra', $id)
+            ->update(['status' => 'pago']);
+
+        return redirect()->route('compras.index')->with('success', 'Compra finalizada e pagamento registrado!');
     }
 
     /** 🔹 Cancelar compra */
@@ -159,7 +171,25 @@ class CompraController extends Controller
         $compra = Compra::findOrFail($id);
         $compra->update(['status' => 'cancelada']);
 
-        return redirect()->route('compras.index')->with('success', 'Compra cancelada com sucesso!');
+        DB::table('contas_pagar')
+            ->where('id_compra', $id)
+            ->update(['status' => 'pendente']);
+
+        return redirect()->route('compras.index')->with('success', 'Compra cancelada.');
+    }
+
+    /** 🔹 Excluir compra */
+    public function destroy($id)
+    {
+        $compra = Compra::findOrFail($id);
+
+        if ($compra->status === 'finalizada') {
+            return back()->with('error', 'Não é possível excluir uma compra finalizada.');
+        }
+
+        $compra->delete();
+
+        return redirect()->route('compras.index')->with('success', 'Compra excluída com sucesso!');
     }
 
     /** 🔹 Exibir detalhes */
