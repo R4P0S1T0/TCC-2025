@@ -16,7 +16,7 @@
 </head>
 <body>
     <h2>Relatório de Fluxo de Caixa</h2>
-    <p>Período: {{ $inicioSemana->format('d/m/Y') }} a {{ $fimSemana->format('d/m/Y') }}</p>
+    <p>Período: {{ $inicio->format('d/m/Y') }} a {{ $fim->format('d/m/Y') }}</p>
 
     <table>
         <thead>
@@ -28,11 +28,11 @@
             </tr>
         </thead>
         <tbody>
-            @foreach ($transacoes as $t)
+            @foreach ($movimentos as $t)
                 <tr>
                     <td>{{ \Carbon\Carbon::parse($t->data)->format('d/m/Y') }}</td>
                     <td>{{ $t->descricao }}</td>
-                    <td class="{{ $t->tipo }}">{{ ucfirst($t->tipo) }}</td>
+                    <td class="{{ strtolower($t->tipo) }}">{{ ucfirst($t->tipo) }}</td>
                     <td>{{ number_format($t->valor, 2, ',', '.') }}</td>
                 </tr>
             @endforeach
@@ -42,7 +42,7 @@
     <div class="summary">
         <p><strong>Total de Entradas:</strong> R$ {{ number_format($entradas, 2, ',', '.') }}</p>
         <p><strong>Total de Saídas:</strong> R$ {{ number_format($saidas, 2, ',', '.') }}</p>
-        <p><strong>Saldo da Semana:</strong> 
+        <p><strong>Saldo do Período:</strong> 
             <span style="color: {{ $saldo >= 0 ? 'green' : 'red' }}">
                 R$ {{ number_format($saldo, 2, ',', '.') }}
             </span>

@@ -3,23 +3,23 @@
 
 @section('content')
 <div class="p-8">
-    {{-- Alerta de sucesso --}}
+    {{-- ✅ Alerta de sucesso --}}
     @if(session('success'))
         <div class="mb-6 bg-green-100 text-green-800 border border-green-200 px-4 py-3 rounded-lg text-sm">
             {{ session('success') }}
         </div>
     @endif
 
-    {{-- Cabeçalho --}}
+    {{-- ✅ Cabeçalho --}}
     <div class="flex justify-between items-center mb-8">
         <h1 class="text-2xl font-semibold text-gray-800">Clientes</h1>
-         <a href="{{ route('clientes.create') }}" 
-           class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
-            <i class="fas fa-plus mr-2"></i>Novo Cliente
+        <a href="{{ route('clientes.create') }}" 
+           class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition flex items-center gap-2">
+            <i class="fas fa-plus"></i> Novo Cliente
         </a>
     </div>
 
-    {{-- Tabela --}}
+    {{-- ✅ Tabela de clientes --}}
     <div class="overflow-x-auto rounded-xl border border-gray-200 shadow-sm bg-white">
         <table class="min-w-full text-sm text-gray-700">
             <thead class="bg-gray-50 text-gray-600 uppercase text-xs font-semibold border-b">
@@ -34,7 +34,7 @@
             </thead>
             <tbody class="divide-y divide-gray-100">
                 @forelse($clientes as $cliente)
-                    <tr class="hover:bg-gray-50">
+                    <tr class="hover:bg-gray-50 transition">
                         <td class="px-5 py-3 font-medium text-gray-800">
                             {{ $cliente->nome }}
                         </td>
@@ -49,30 +49,34 @@
                                 {{ ucfirst($cliente->status) }}
                             </span>
                         </td>
-                        <td class="px-5 py-3 text-right space-x-3">
-                            {{-- 🔍 Ver Detalhes --}}
-                            <a href="{{ route('clientes.show', $cliente->id_cliente) }}" 
-                               class="text-gray-700 hover:text-gray-900 hover:underline">
-                                Ver
-                            </a>
 
-                            {{-- ✏️ Editar --}}
-                            <a href="{{ route('clientes.edit', $cliente->id_cliente) }}" 
-                               class="text-blue-600 hover:text-blue-800 hover:underline">
-                                Editar
-                            </a>
+                        {{-- ✅ Ações lado a lado --}}
+                        <td class="px-5 py-3 text-right">
+                            <div class="flex justify-end items-center gap-4">
+                                {{-- 🔍 Ver Detalhes --}}
+                                <a href="{{ route('clientes.show', $cliente->id_cliente) }}" 
+                                   class="text-gray-700 hover:text-gray-900 hover:underline flex items-center gap-1">
+                                    <i class="fas fa-eye"></i> Ver
+                                </a>
 
-                            {{-- 🗑️ Excluir --}}
-                            <form action="{{ route('clientes.destroy', $cliente->id_cliente) }}" 
-                                  method="POST" 
-                                  class="inline-block"
-                                  onsubmit="return confirm('Deseja realmente excluir este cliente?')">
-                                @csrf 
-                                @method('DELETE')
-                                <button type="submit" class="text-red-600 hover:text-red-800 hover:underline">
-                                    Excluir
-                                </button>
-                            </form>
+                                {{-- ✏️ Editar --}}
+                                <a href="{{ route('clientes.edit', $cliente->id_cliente) }}" 
+                                   class="text-blue-600 hover:text-blue-800 hover:underline flex items-center gap-1">
+                                    <i class="fas fa-edit"></i> Editar
+                                </a>
+
+                                {{-- 🗑️ Excluir --}}
+                                <form action="{{ route('clientes.destroy', $cliente->id_cliente) }}" 
+                                      method="POST" 
+                                      onsubmit="return confirm('Deseja realmente excluir este cliente?')"
+                                      class="inline">
+                                    @csrf 
+                                    @method('DELETE')
+                                    <button type="submit" class="text-red-600 hover:text-red-800 hover:underline flex items-center gap-1">
+                                        <i class="fas fa-trash"></i> Excluir
+                                    </button>
+                                </form>
+                            </div>
                         </td>
                     </tr>
                 @empty
@@ -86,7 +90,7 @@
         </table>
     </div>
 
-    {{-- Paginação --}}
+    {{-- ✅ Paginação --}}
     @if($clientes->hasPages())
         <div class="mt-6">
             {{ $clientes->links() }}

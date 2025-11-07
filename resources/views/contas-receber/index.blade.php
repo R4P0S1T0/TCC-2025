@@ -16,10 +16,10 @@
 
     {{-- ✅ Filtros --}}
     <form method="GET" action="{{ route('contas-receber.index') }}"
-          class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 bg-white p-4 rounded-lg shadow border border-gray-200">
+          class="bg-white p-4 rounded-xl shadow border border-gray-200 space-y-4 lg:space-y-0 lg:flex lg:flex-wrap lg:items-end lg:justify-between gap-4">
 
         <!-- Status -->
-        <div>
+        <div class="flex-1 min-w-[180px]">
             <label class="text-sm block mb-1 text-gray-700">Status</label>
             <select name="status" class="w-full rounded-lg border border-gray-300 p-2 focus:ring-2 focus:ring-blue-500">
                 <option value="">Todos</option>
@@ -29,36 +29,37 @@
             </select>
         </div>
 
-        <!-- Período (responsivo) -->
-        <div class="flex flex-col sm:flex-row gap-2">
-            <div class="flex-1">
-                <label class="text-sm block mb-1 text-gray-700">De</label>
-                <input type="date" name="data_inicio" value="{{ request('data_inicio') }}"
-                       class="w-full rounded-lg border border-gray-300 p-2 focus:ring-2 focus:ring-blue-500">
-            </div>
-            <div class="flex-1">
-                <label class="text-sm block mb-1 text-gray-700">Até</label>
-                <input type="date" name="data_fim" value="{{ request('data_fim') }}"
-                       class="w-full rounded-lg border border-gray-300 p-2 focus:ring-2 focus:ring-blue-500">
-            </div>
+        <!-- De -->
+        <div class="flex-1 min-w-[180px]">
+            <label class="text-sm block mb-1 text-gray-700">De</label>
+            <input type="date" name="data_inicio" value="{{ request('data_inicio') }}"
+                   class="w-full rounded-lg border border-gray-300 p-2 focus:ring-2 focus:ring-blue-500">
         </div>
 
-        <!-- Busca -->
-        <div>
+        <!-- Até -->
+        <div class="flex-1 min-w-[180px]">
+            <label class="text-sm block mb-1 text-gray-700">Até</label>
+            <input type="date" name="data_fim" value="{{ request('data_fim') }}"
+                   class="w-full rounded-lg border border-gray-300 p-2 focus:ring-2 focus:ring-blue-500">
+        </div>
+
+        <!-- Buscar -->
+        <div class="flex-[2] min-w-[250px]">
             <label class="text-sm block mb-1 text-gray-700">Buscar</label>
             <input type="text" name="busca" value="{{ request('busca') }}" placeholder="Ex: cliente, descrição, #ID"
                    class="w-full rounded-lg border border-gray-300 p-2 focus:ring-2 focus:ring-blue-500">
         </div>
 
         <!-- Botões -->
-        <div class="flex items-end gap-2">
+        <div class="flex gap-2 min-w-[180px]">
             <button
-                class="flex-1 sm:flex-none px-4 py-2 rounded-lg bg-gray-800 text-white hover:bg-gray-900 transition flex items-center justify-center gap-2">
+                class="flex-1 px-4 py-2 rounded-lg bg-gray-800 text-white hover:bg-gray-900 transition flex items-center justify-center gap-2">
                 <i class="fas fa-filter"></i> Filtrar
             </button>
+
             @if(request()->query())
                 <a href="{{ route('contas-receber.index') }}"
-                   class="flex-1 sm:flex-none px-4 py-2 rounded-lg bg-gray-200 text-gray-700 hover:bg-gray-300 transition flex items-center justify-center gap-2">
+                   class="flex-1 px-4 py-2 rounded-lg bg-gray-200 text-gray-700 hover:bg-gray-300 transition flex items-center justify-center gap-2">
                     <i class="fas fa-rotate-left"></i> Limpar
                 </a>
             @endif
